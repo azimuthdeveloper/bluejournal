@@ -3,6 +3,21 @@ Hosting URL: https://blue-journal.web.app
 Deployment date: Fri Jul 19 2024
 
 Changes in this deployment:
+1. Fixed install prompt behavior:
+   - Modified app to show install prompt only once per session
+   - Added persistence of user's choice in localStorage
+   - Added install button to settings page for users who initially reject the prompt
+
+2. Fixed dark mode text readability:
+   - Improved contrast for warning text in settings page
+   - Added RGB color variables for better alpha transparency support
+   - Made warning text bold for better readability
+
+3. Fixed dialog styling in dark mode:
+   - Updated dialog styles to match mat-cards in dark mode
+   - Ensured consistent styling across all dialogs in the application
+
+Previous changes:
 1. Fixed build.sh script:
    - Made Firebase deployment optional for local development
    - Added checks for CI environment
