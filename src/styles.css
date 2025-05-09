@@ -92,6 +92,50 @@ body {
   background-color: var(--border-color);
 }
 
+/* Button styles for dark theme */
+.dark-theme .mat-mdc-stroked-button:not([disabled]) {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--text-color);
+}
+
+.dark-theme .mat-mdc-stroked-button:not([disabled]):hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-theme .mat-mdc-button:not([disabled]) {
+  color: var(--text-color);
+}
+
+.dark-theme .mat-mdc-button.mat-primary:not([disabled]) {
+  color: var(--primary-color);
+}
+
+.dark-theme .mat-mdc-raised-button:not([disabled]) {
+  background-color: #505050;
+  color: var(--text-color);
+}
+
+.dark-theme .mat-mdc-raised-button.mat-primary:not([disabled]) {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.dark-theme .mat-mdc-stroked-button.mat-warn:not([disabled]),
+.dark-theme .mat-mdc-raised-button.mat-warn:not([disabled]) {
+  color: var(--warn-color);
+}
+
+.dark-theme .upload-btn,
+.dark-theme .clear-btn {
+  color: var(--text-color);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.dark-theme .upload-btn:hover,
+.dark-theme .clear-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 .dark-theme .category-chip {
   background-color: #505050;
   color: var(--text-color);
@@ -122,11 +166,26 @@ body {
 
 .dark-theme .settings-info {
   background-color: #404040;
+  color: var(--text-color);
+}
+
+.dark-theme .settings-info mat-icon {
+  color: var(--primary-color);
 }
 
 .dark-theme .room-cell {
-  background-color: #424242;
+  background-color: #333333;
   border-color: #616161;
+}
+
+.dark-theme .column-number,
+.dark-theme .row-number,
+.dark-theme .room-letter {
+  color: var(--primary-color);
+}
+
+.dark-theme mat-card-subtitle {
+  color: var(--text-color);
 }
 
 /* Global utility classes */

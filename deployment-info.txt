@@ -1,10 +1,26 @@
 Application successfully built and deployed to Firebase.
 Hosting URL: https://blue-journal.web.app
-Deployment date: Wed Jul 17 2024
+Deployment date: Fri Jul 19 2024
 
 Changes in this deployment:
-1. Added dark mode with toggle in settings
-2. Added system preference detection for dark/light mode
-3. Added Buy Me a Coffee link in settings
-4. Updated styles to support dark mode
-5. Improved accessibility with proper color contrast in dark mode
+1. Fixed build.sh script:
+   - Made Firebase deployment optional for local development
+   - Added checks for CI environment
+   - Improved error handling and user feedback
+
+2. Fixed serviceWorker configuration:
+   - Updated angular.json to use correct serviceWorker configuration
+   - Changed from boolean value to string pointing to ngsw-config.json
+
+3. Improved dark mode styling:
+   - Enhanced button visibility in dark mode
+   - Fixed styling for "Add Image" and other buttons
+   - Updated settings page elements to use CSS variables
+   - Added proper contrast for text and UI elements in dark mode
+
+3. Previous changes:
+   - Fixed dark mode text readability issues
+   - Set up PWA icon using blueprinceicon.png
+   - Added git commit hash display at the bottom of every page
+   - Updated build script to generate PWA icons and insert git commit hash
+   - Enabled service worker for better offline support

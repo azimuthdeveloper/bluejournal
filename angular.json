@@ -25,6 +25,7 @@
                 "glob": "**/*",
                 "input": "public"
               },
+              "src/favicon.ico",
               "src/manifest.webmanifest",
               "src/assets"
             ],
@@ -32,7 +33,7 @@
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css"
             ],
-            "serviceWorker": false,
+            "serviceWorker": "ngsw-config.json",
             "scripts": []
           },
           "configurations": {
