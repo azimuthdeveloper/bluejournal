@@ -1,0 +1,34 @@
+<div class="settings-container">
+  <mat-card class="settings-card">
+    <mat-card-header>
+      <mat-card-title>Settings</mat-card-title>
+      <mat-card-subtitle>Select your knowledge level</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="settings-description">
+        Select your knowledge level about Blue Prince to customize your experience.
+        Higher knowledge levels will unlock more features.
+      </p>
+
+      <div class="knowledge-levels">
+        <div *ngFor="let level of knowledgeLevels" class="knowledge-level">
+          <button
+            mat-raised-button
+            [color]="level.enabled ? 'primary' : ''"
+            [disabled]="!level.enabled"
+            (click)="selectKnowledgeLevel(level.id)">
+            {{ level.label }}
+          </button>
+        </div>
+      </div>
+
+      <div class="settings-info">
+        <mat-icon>info</mat-icon>
+        <p>
+          Selecting "I know a little" will enable the map feature.
+          Other knowledge levels are currently locked.
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
