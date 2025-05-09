@@ -12,6 +12,11 @@
   --warn-color: #f44336;
   --disabled-color: rgba(0, 0, 0, 0.38);
   --shadow-color: rgba(0, 0, 0, 0.1);
+
+  /* RGB values for colors (for use with alpha) */
+  --primary-color-rgb: 25, 118, 210;
+  --accent-color-rgb: 255, 64, 129;
+  --warn-color-rgb: 244, 67, 54;
 }
 
 .dark-theme {
@@ -27,6 +32,11 @@
   --warn-color: #f44336;
   --disabled-color: rgba(255, 255, 255, 0.38);
   --shadow-color: rgba(0, 0, 0, 0.3);
+
+  /* RGB values for colors (for use with alpha) */
+  --primary-color-rgb: 123, 31, 162;
+  --accent-color-rgb: 105, 240, 174;
+  --warn-color-rgb: 244, 67, 54;
 
   /* Override Angular Material prebuilt theme */
   color-scheme: dark;
@@ -66,7 +76,8 @@ body {
 }
 
 /* Dark theme overrides for specific components */
-.dark-theme .mat-mdc-card {
+.dark-theme .mat-mdc-card,
+.dark-theme .mat-mdc-dialog-container .mat-mdc-dialog-surface {
   background-color: var(--card-background);
   color: var(--text-color);
 }
@@ -186,6 +197,33 @@ body {
 
 .dark-theme mat-card-subtitle {
   color: var(--text-color);
+}
+
+/* Dialog styles */
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-color: var(--card-background);
+  --mdc-dialog-with-divider-divider-color: var(--border-color);
+  --mdc-dialog-subhead-color: var(--text-color);
+  --mdc-dialog-supporting-text-color: var(--text-color);
+}
+
+.dark-theme .mat-mdc-dialog-container {
+  --mdc-dialog-container-color: var(--card-background);
+  --mdc-dialog-with-divider-divider-color: var(--border-color);
+  --mdc-dialog-subhead-color: var(--text-color);
+  --mdc-dialog-supporting-text-color: var(--text-color);
+}
+
+.dark-theme .mat-mdc-dialog-title {
+  color: var(--text-color);
+}
+
+.dark-theme .mat-mdc-dialog-content {
+  color: var(--text-color);
+}
+
+.dark-theme .mat-mdc-dialog-actions {
+  background-color: var(--card-background);
 }
 
 /* Global utility classes */

@@ -66,6 +66,23 @@
         </div>
       </div>
 
+      <!-- App Installation Section -->
+      <div class="settings-section" *ngIf="canInstallApp">
+        <h3>Install App</h3>
+        <p class="settings-description">
+          Install Blue Journal on your device for a better experience. You'll be able to use the app offline and it will load faster.
+        </p>
+        <div class="support-links">
+          <button mat-raised-button
+                 color="primary"
+                 (click)="installApp()"
+                 class="support-button">
+            <mat-icon>get_app</mat-icon>
+            Install App
+          </button>
+        </div>
+      </div>
+
       <!-- Support Section -->
       <div class="settings-section">
         <h3>Support the Developer</h3>

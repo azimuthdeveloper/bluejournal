@@ -40,6 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
   // Property to store the deferred prompt event
   private deferredPrompt: any = null;
   private promptShown = false;
+  private promptRejected = false;
 
   private themeSubscription: Subscription | null = null;
 
@@ -57,8 +58,8 @@ export class AppComponent implements OnInit, OnDestroy {
       this.isWarningPage = event.url === '/warning' || event.url === '/';
 
       // Show install prompt when navigating to a non-warning page
-      // and the prompt hasn't been shown yet
-      if (!this.isWarningPage && !this.promptShown && this.deferredPrompt) {
+      // and the prompt hasn't been shown yet and hasn't been rejected
+      if (!this.isWarningPage && !this.promptShown && !this.promptRejected && this.deferredPrompt) {
         this.showInstallPrompt();
       }
     });
@@ -85,6 +86,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Get the commit hash
     this.commitHash = this.gitInfoService.getCommitHash();
+
+    // Check if user has previously rejected the install prompt
+    const promptRejected = localStorage.getItem('bluejournal_prompt_rejected');
+    if (promptRejected === 'true') {
+      this.promptRejected = true;
+    }
   }
 
   // Show the installation prompt dialog
@@ -103,11 +110,11 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     // Handle dialog close
-    dialogRef.afterClosed().subscribe(() => {
-      // If the user dismissed the dialog without installing,
-      // we can show it again later
-      if (this.deferredPrompt) {
-        this.promptShown = false;
+    dialogRef.afterClosed().subscribe(result => {
+      // If the user explicitly rejected the prompt, remember this decision
+      if (result === 'rejected') {
+        this.promptRejected = true;
+        localStorage.setItem('bluejournal_prompt_rejected', 'true');
       }
     });
   }
@@ -127,5 +134,19 @@ export class AppComponent implements OnInit, OnDestroy {
   // Method to enable map tab
   enableMapTab(): void {
     this.showMapTab = true;
+  }
+
+  // Method to check if app can be installed
+  canInstallApp(): boolean {
+    return !!this.deferredPrompt;
+  }
+
+  // Method to manually show the install prompt
+  manuallyShowInstallPrompt(): void {
+    if (this.deferredPrompt) {
+      this.promptRejected = false; // Reset rejection status
+      localStorage.removeItem('bluejournal_prompt_rejected');
+      this.showInstallPrompt();
+    }
   }
 }

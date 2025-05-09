@@ -38,6 +38,9 @@ export class SettingsComponent implements OnInit {
   // Dark mode settings
   darkMode: boolean = false;
 
+  // App installation
+  canInstallApp: boolean = false;
+
   constructor(
     private router: Router,
     private appComponent: AppComponent,
@@ -59,6 +62,9 @@ export class SettingsComponent implements OnInit {
     this.themeService.isDarkMode().subscribe(isDarkMode => {
       this.darkMode = isDarkMode;
     });
+
+    // Check if app can be installed
+    this.canInstallApp = this.appComponent.canInstallApp();
   }
 
   // Method to toggle dark mode
@@ -94,5 +100,10 @@ export class SettingsComponent implements OnInit {
         element.classList.add('hidden');
       }
     });
+  }
+
+  // Method to show the install prompt
+  installApp(): void {
+    this.appComponent.manuallyShowInstallPrompt();
   }
 }

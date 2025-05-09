@@ -30,11 +30,17 @@
 .settings-info {
   display: flex;
   align-items: flex-start;
-  background-color: var(--background-color);
+  background-color: rgba(var(--primary-color-rgb), 0.1);
   padding: 16px;
   border-radius: 4px;
   margin-top: 16px;
   border: 1px solid var(--border-color);
+}
+
+/* Ensure better contrast in dark mode */
+:host-context(.dark-theme) .settings-info {
+  background-color: rgba(var(--primary-color-rgb), 0.2);
+  border-color: rgba(var(--primary-color-rgb), 0.3);
 }
 
 .settings-info mat-icon {
@@ -48,6 +54,7 @@
   font-size: 14px;
   line-height: 1.5;
   color: var(--text-color);
+  font-weight: 500;
 }
 
 /* Settings sections */
