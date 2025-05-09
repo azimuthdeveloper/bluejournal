@@ -91,13 +91,13 @@
 
             <!-- Image upload for edit mode -->
             <div class="image-upload-container">
-              <input type="file" accept="image/*" #editImageInput style="display: none" (change)="onImageSelected($event, true)">
+              <input type="file" accept="image/*" #editImageInput style="display: none" (change)="onImageSelected($event)">
               <button mat-stroked-button type="button" (click)="editImageInput.click()" class="upload-btn">
                 <mat-icon>image</mat-icon> Add Image
               </button>
 
               @if (editingNote.images && editingNote.images.length > 0) {
-                <button mat-stroked-button color="warn" type="button" (click)="clearImages(true)" class="clear-btn">
+                <button mat-stroked-button color="warn" type="button" (click)="clearImages()" class="clear-btn">
                   <mat-icon>delete_sweep</mat-icon> Clear All Images
                 </button>
 
@@ -105,7 +105,7 @@
                   @for (image of editingNote.images; track $index; let i = $index) {
                     <div class="image-preview-container">
                       <img [src]="image" class="image-preview">
-                      <button mat-icon-button color="warn" (click)="removeImage(i, true)" class="remove-image-btn">
+                      <button mat-icon-button color="warn" (click)="removeImage(i)" class="remove-image-btn">
                         <mat-icon>delete</mat-icon>
                       </button>
                     </div>
@@ -115,7 +115,7 @@
                 <!-- Backward compatibility for single image -->
                 <div class="image-preview-container">
                   <img [src]="editingNote.image" class="image-preview">
-                  <button mat-icon-button color="warn" (click)="clearImages(true)" class="remove-image-btn">
+                  <button mat-icon-button color="warn" (click)="clearImages()" class="remove-image-btn">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
