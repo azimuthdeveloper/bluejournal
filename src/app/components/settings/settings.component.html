@@ -2,33 +2,54 @@
   <mat-card class="settings-card">
     <mat-card-header>
       <mat-card-title>Settings</mat-card-title>
-      <mat-card-subtitle>Select your knowledge level</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <p class="settings-description">
-        Select your knowledge level about Blue Prince to customize your experience.
-        Higher knowledge levels will unlock more features.
-      </p>
+      <!-- Knowledge Levels Section -->
+      <div class="settings-section">
+        <h3>Knowledge Level</h3>
+        <p class="settings-description">
+          Select your knowledge level about Blue Prince to customize your experience.
+          Higher knowledge levels will unlock more features.
+        </p>
 
-      <div class="knowledge-levels">
-        <div *ngFor="let level of knowledgeLevels" class="knowledge-level">
-          <button
-            mat-raised-button
-            [color]="level.enabled ? 'primary' : ''"
-            [disabled]="!level.enabled"
-            (click)="selectKnowledgeLevel(level.id)">
-            {{ level.label }}
-          </button>
+        <div class="knowledge-levels">
+          <div *ngFor="let level of knowledgeLevels" class="knowledge-level">
+            <button
+              mat-raised-button
+              [color]="level.enabled ? 'primary' : ''"
+              [disabled]="!level.enabled"
+              (click)="selectKnowledgeLevel(level.id)">
+              {{ level.label }}
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-info">
+          <mat-icon>info</mat-icon>
+          <p>
+            Only the first knowledge level is currently available.
+            More levels will be unlocked in future updates.
+          </p>
         </div>
       </div>
 
-      <div class="settings-info">
-        <mat-icon>info</mat-icon>
-        <p>
-          Selecting "I know a little" will enable the map feature.
-          Other knowledge levels are currently locked.
-        </p>
+      <!-- Ads Settings Section -->
+      <div class="settings-section">
+        <h3>Advertisement Settings</h3>
+        <div class="ads-toggle-container">
+          <mat-slide-toggle
+            [(ngModel)]="showAds"
+            (change)="toggleAds()"
+            color="primary">
+            Show advertisements
+          </mat-slide-toggle>
+          <p class="settings-description">
+            Toggle this setting to show or hide advertisements throughout the app.
+            Disabling ads helps support the development of Blue Journal.
+          </p>
+        </div>
       </div>
     </mat-card-content>
   </mat-card>
 </div>
+<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="flutterscratch" data-color="#5F7FFF" data-emoji="😇"  data-font="Cookie" data-text="Thanks for the journal!" data-outline-color="#000000" data-font-color="#ffffff" data-coffee-color="#FFDD00" ></script>

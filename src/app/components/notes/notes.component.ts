@@ -167,6 +167,22 @@ export class NotesComponent implements OnInit {
     }
   }
 
+  // Method to filter by a single category when clicked
+  filterByCategory(category: string): void {
+    // If category is already selected, remove it (toggle off)
+    if (this.selectedCategories.includes(category)) {
+      this.selectedCategories = this.selectedCategories.filter(cat => cat !== category);
+    } else {
+      // Otherwise, set it as the only selected category (clear others)
+      this.selectedCategories = [category];
+    }
+  }
+
+  // Clear all category filters
+  clearCategoryFilters(): void {
+    this.selectedCategories = [];
+  }
+
   get filteredNotes(): Note[] {
     let filtered = this.notes;
 

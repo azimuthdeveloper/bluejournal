@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AppComponent } from '../../app.component';
 
@@ -11,14 +13,16 @@ import { AppComponent } from '../../app.component';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatCardModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatSlideToggleModule
   ],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnInit {
   // Knowledge levels
   knowledgeLevels = [
     { id: 'little', label: 'I know a little', enabled: true },
@@ -27,7 +31,19 @@ export class SettingsComponent {
     { id: 'lot', label: 'I know a lot', enabled: false }
   ];
 
+  // Ads settings
+  showAds: boolean = true;
+
   constructor(private router: Router, private appComponent: AppComponent) {}
+
+  ngOnInit(): void {
+    // Load ads preference from localStorage
+    const adsPreference = localStorage.getItem('bluejournal_show_ads');
+    if (adsPreference !== null) {
+      this.showAds = adsPreference === 'true';
+      this.updateAdsVisibility();
+    }
+  }
 
   // Method to handle knowledge level selection
   selectKnowledgeLevel(levelId: string): void {
@@ -38,5 +54,24 @@ export class SettingsComponent {
       // Navigate to notes page
       this.router.navigate(['/notes']);
     }
+  }
+
+  // Method to toggle ads visibility
+  toggleAds(): void {
+    this.showAds = !this.showAds;
+    localStorage.setItem('bluejournal_show_ads', this.showAds.toString());
+    this.updateAdsVisibility();
+  }
+
+  // Update ads visibility in the DOM
+  private updateAdsVisibility(): void {
+    const adsElements = document.querySelectorAll('.adsbygoogle');
+    adsElements.forEach(element => {
+      if (this.showAds) {
+        element.classList.remove('hidden');
+      } else {
+        element.classList.add('hidden');
+      }
+    });
   }
 }

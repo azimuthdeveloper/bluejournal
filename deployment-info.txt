@@ -3,7 +3,10 @@ Hosting URL: https://blue-journal.web.app
 Deployment date: Wed Jul 17 2024
 
 Changes in this deployment:
-1. Made the notes tab the first tab
-2. Hidden the map tab by default
-3. Added a settings page with knowledge level buttons
-4. Implemented image optimization to keep images under 200KB
+1. Made the warning screen the first page again
+2. Enhanced notes page with tappable category filtering
+3. Added Google Analytics with tag G-L64LPBRNSZ
+4. Added Google Ads
+5. Updated settings page with option to turn off ads
+6. Created build.sh script for GitHub Actions automation
+7. Removed spoiler text about map feature

@@ -1,0 +1,235 @@
+<div class="notes-container">
+  <mat-card class="new-note-card">
+    <mat-card-header>
+      <mat-card-title>Create New Note</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Title</mat-label>
+        <input matInput [(ngModel)]="newNote.title" placeholder="Note title">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Content</mat-label>
+        <textarea matInput [(ngModel)]="newNote.content" rows="4" placeholder="Note content"></textarea>
+      </mat-form-field>
+
+      <div class="category-section">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Categories (Optional)</mat-label>
+          <input matInput
+                 #categoriesInput
+                 [value]="newNote.categories?.join(', ')"
+                 placeholder="Enter categories separated by commas"
+                 (blur)="newNote.categories = processCategoriesInput(categoriesInput.value)">
+          <mat-hint>Type categories separated by commas (e.g., "work, personal, important")</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <!-- Image upload -->
+      <div class="image-upload-container">
+        <input type="file" accept="image/*" #imageInput style="display: none" (change)="onImageSelected($event)">
+        <button mat-stroked-button type="button" (click)="imageInput.click()" class="upload-btn">
+          <mat-icon>image</mat-icon> Add Image
+        </button>
+
+        @if (newNote.images && newNote.images.length > 0) {
+          <button mat-stroked-button color="warn" type="button" (click)="clearImages()" class="clear-btn">
+            <mat-icon>delete_sweep</mat-icon> Clear All Images
+          </button>
+
+          <div class="images-grid">
+            @for (image of newNote.images; track $index; let i = $index) {
+              <div class="image-preview-container">
+                <img [src]="image" class="image-preview">
+                <button mat-icon-button color="warn" (click)="removeImage(i)" class="remove-image-btn">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="addNote()">
+        <mat-icon>add</mat-icon> Add Note
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card class="search-card">
+    <mat-card-content>
+      <div class="search-filters">
+        <mat-form-field appearance="fill" class="search-input">
+          <mat-label>Search Notes</mat-label>
+          <input matInput [(ngModel)]="searchText" placeholder="Search by title or content">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <div class="active-filters" *ngIf="selectedCategories.length > 0">
+          <div class="active-filters-label">Active filters:</div>
+          <div class="active-category-chips">
+            @for (category of selectedCategories; track category) {
+              <span class="category-chip selected">
+                {{ category }}
+                <button mat-icon-button class="remove-filter-btn" (click)="filterByCategory(category)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </span>
+            }
+            <button mat-button color="primary" (click)="clearCategoryFilters()">
+              <mat-icon>clear_all</mat-icon> Clear All
+            </button>
+          </div>
+        </div>
+
+        <div class="available-categories" *ngIf="categories.length > 0">
+          <div class="available-categories-label">Filter by category:</div>
+          <div class="category-chips">
+            @for (category of categories; track category) {
+              <span class="category-chip"
+                    [class.selected]="selectedCategories.includes(category)"
+                    (click)="filterByCategory(category)">
+                {{ category }}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="notes-list">
+    @if (filteredNotes.length === 0) {
+      <mat-card class="empty-state">
+        <mat-card-content>
+          <p>No notes found. Create your first note!</p>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <!-- Edit mode form -->
+      @if (editingNote) {
+        <mat-card class="edit-note-card">
+          <mat-card-header>
+            <mat-card-title>Edit Note</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Title</mat-label>
+              <input matInput [(ngModel)]="editingNote.title" placeholder="Note title">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Content</mat-label>
+              <textarea matInput [(ngModel)]="editingNote.content" rows="4" placeholder="Note content"></textarea>
+            </mat-form-field>
+
+            <div class="category-section">
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Categories (Optional)</mat-label>
+                <input matInput
+                       #editCategoriesInput
+                       [value]="editingNote.categories?.join(', ')"
+                       placeholder="Enter categories separated by commas"
+                       (blur)="editingNote.categories = processCategoriesInput(editCategoriesInput.value)">
+                <mat-hint>Type categories separated by commas (e.g., "work, personal, important")</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <!-- Image upload for edit mode -->
+            <div class="image-upload-container">
+              <input type="file" accept="image/*" #editImageInput style="display: none" (change)="onImageSelected($event, true)">
+              <button mat-stroked-button type="button" (click)="editImageInput.click()" class="upload-btn">
+                <mat-icon>image</mat-icon> Add Image
+              </button>
+
+              @if (editingNote.images && editingNote.images.length > 0) {
+                <button mat-stroked-button color="warn" type="button" (click)="clearImages(true)" class="clear-btn">
+                  <mat-icon>delete_sweep</mat-icon> Clear All Images
+                </button>
+
+                <div class="images-grid">
+                  @for (image of editingNote.images; track $index; let i = $index) {
+                    <div class="image-preview-container">
+                      <img [src]="image" class="image-preview">
+                      <button mat-icon-button color="warn" (click)="removeImage(i, true)" class="remove-image-btn">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+              } @else if (editingNote.image) {
+                <!-- Backward compatibility for single image -->
+                <div class="image-preview-container">
+                  <img [src]="editingNote.image" class="image-preview">
+                  <button mat-icon-button color="warn" (click)="clearImages(true)" class="remove-image-btn">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button (click)="cancelEdit()">Cancel</button>
+            <button mat-raised-button color="primary" (click)="saveEdit()">Save</button>
+          </mat-card-actions>
+        </mat-card>
+      }
+
+      <!-- Note cards -->
+      @for (note of filteredNotes; track note.id; let i = $index) {
+        <mat-card class="note-card">
+          <mat-card-header>
+            <mat-card-title>{{ note.title }}</mat-card-title>
+            <mat-card-subtitle>
+              <span class="note-date">{{ note.createdAt | date:'medium' }}</span>
+              <div class="note-categories">
+                @if (note.categories && note.categories.length > 0) {
+                  @for (category of note.categories; track category) {
+                    <span class="note-category"
+                          [class.selected]="selectedCategories.includes(category)"
+                          (click)="filterByCategory(category); $event.stopPropagation()">
+                      {{ category }}
+                    </span>
+                  }
+                } @else if (note.category) {
+                  <span class="note-category"
+                        [class.selected]="selectedCategories.includes(note.category)"
+                        (click)="filterByCategory(note.category); $event.stopPropagation()">
+                    {{ note.category }}
+                  </span>
+                }
+              </div>
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            @if (note.images && note.images.length > 0) {
+              <div class="note-images-grid">
+                @for (image of note.images; track $index) {
+                  <div class="note-image-container">
+                    <img [src]="image" class="note-image">
+                  </div>
+                }
+              </div>
+            } @else if (note.image) {
+              <!-- Backward compatibility for single image -->
+              <div class="note-image-container">
+                <img [src]="note.image" class="note-image">
+              </div>
+            }
+            <p class="note-content">{{ note.content }}</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-icon-button color="primary" (click)="editNote(note)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteNote(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    }
+  </div>
+</div>
