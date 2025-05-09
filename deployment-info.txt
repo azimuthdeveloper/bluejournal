@@ -1,0 +1,9 @@
+Application successfully built and deployed to Firebase.
+Hosting URL: https://blue-journal.web.app
+Deployment date: Wed Jul 17 2024
+
+Changes in this deployment:
+1. Made the notes tab the first tab
+2. Hidden the map tab by default
+3. Added a settings page with knowledge level buttons
+4. Implemented image optimization to keep images under 200KB
