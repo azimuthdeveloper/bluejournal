@@ -69,21 +69,42 @@
   font-weight: 500;
 }
 
-/* Ads toggle container */
-.ads-toggle-container {
+/* Toggle containers */
+.ads-toggle-container,
+.theme-toggle-container {
   margin-top: 16px;
 }
 
-.ads-toggle-container .settings-description {
+.ads-toggle-container .settings-description,
+.theme-toggle-container .settings-description {
   margin-top: 8px;
   margin-bottom: 0;
   font-size: 14px;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--secondary-text-color);
 }
 
 /* Hide ads when disabled */
 .adsbygoogle.hidden {
   display: none !important;
+}
+
+/* Support section */
+.support-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.support-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+}
+
+.support-button mat-icon {
+  margin-right: 4px;
 }
 
 @media (max-width: 600px) {

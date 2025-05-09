@@ -7,6 +7,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AppComponent } from '../../app.component';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-settings',
@@ -34,7 +35,14 @@ export class SettingsComponent implements OnInit {
   // Ads settings
   showAds: boolean = true;
 
-  constructor(private router: Router, private appComponent: AppComponent) {}
+  // Dark mode settings
+  darkMode: boolean = false;
+
+  constructor(
+    private router: Router,
+    private appComponent: AppComponent,
+    private themeService: ThemeService
+  ) {}
 
   ngOnInit(): void {
     // Load ads preference from localStorage
@@ -43,6 +51,19 @@ export class SettingsComponent implements OnInit {
       this.showAds = adsPreference === 'true';
       this.updateAdsVisibility();
     }
+
+    // Initialize dark mode state
+    this.darkMode = this.themeService.getCurrentTheme();
+
+    // Subscribe to theme changes
+    this.themeService.isDarkMode().subscribe(isDarkMode => {
+      this.darkMode = isDarkMode;
+    });
+  }
+
+  // Method to toggle dark mode
+  toggleDarkMode(): void {
+    this.themeService.toggleDarkMode();
   }
 
   // Method to handle knowledge level selection

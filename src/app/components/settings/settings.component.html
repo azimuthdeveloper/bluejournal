@@ -33,6 +33,22 @@
         </div>
       </div>
 
+      <!-- Appearance Settings Section -->
+      <div class="settings-section">
+        <h3>Appearance Settings</h3>
+        <div class="theme-toggle-container">
+          <mat-slide-toggle
+            [(ngModel)]="darkMode"
+            (change)="toggleDarkMode()"
+            color="primary">
+            Dark Mode
+          </mat-slide-toggle>
+          <p class="settings-description">
+            Toggle between light and dark themes. By default, the app will follow your system's theme preference.
+          </p>
+        </div>
+      </div>
+
       <!-- Ads Settings Section -->
       <div class="settings-section">
         <h3>Advertisement Settings</h3>
@@ -49,7 +65,24 @@
           </p>
         </div>
       </div>
+
+      <!-- Support Section -->
+      <div class="settings-section">
+        <h3>Support the Developer</h3>
+        <p class="settings-description">
+          If you enjoy using Blue Journal, consider supporting the developer.
+        </p>
+        <div class="support-links">
+          <a mat-raised-button
+             color="primary"
+             href="https://www.buymeacoffee.com/flutterscratch"
+             target="_blank"
+             class="support-button">
+            <mat-icon>local_cafe</mat-icon>
+            Buy Me a Coffee
+          </a>
+        </div>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>
-<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="flutterscratch" data-color="#5F7FFF" data-emoji="😇"  data-font="Cookie" data-text="Thanks for the journal!" data-outline-color="#000000" data-font-color="#ffffff" data-coffee-color="#FFDD00" ></script>

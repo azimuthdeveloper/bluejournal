@@ -1,1 +1,163 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  /* Light theme variables */
+  --background-color: #f5f5f5;
+  --text-color: rgba(0, 0, 0, 0.87);
+  --secondary-text-color: rgba(0, 0, 0, 0.6);
+  --card-background: #ffffff;
+  --border-color: #e0e0e0;
+  --hover-color: #d0d0d0;
+  --primary-color: #1976d2;
+  --accent-color: #ff4081;
+  --warn-color: #f44336;
+  --disabled-color: rgba(0, 0, 0, 0.38);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark-theme {
+  /* Dark theme variables */
+  --background-color: #303030;
+  --text-color: rgba(255, 255, 255, 0.87);
+  --secondary-text-color: rgba(255, 255, 255, 0.6);
+  --card-background: #424242;
+  --border-color: #616161;
+  --hover-color: #505050;
+  --primary-color: #7b1fa2; /* Purple 700 */
+  --accent-color: #69f0ae; /* Green A200 */
+  --warn-color: #f44336;
+  --disabled-color: rgba(255, 255, 255, 0.38);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+
+  /* Override Angular Material prebuilt theme */
+  color-scheme: dark;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Apply theme variables to Material components */
+.mat-mdc-card {
+  background-color: var(--card-background);
+  color: var(--text-color);
+}
+
+.mat-toolbar.mat-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.mat-mdc-raised-button.mat-primary {
+  background-color: var(--primary-color);
+}
+
+.mat-mdc-button.mat-primary {
+  color: var(--primary-color);
+}
+
+/* Dark theme overrides for specific components */
+.dark-theme .mat-mdc-card {
+  background-color: var(--card-background);
+  color: var(--text-color);
+}
+
+.dark-theme .note-card,
+.dark-theme .settings-card,
+.dark-theme .new-note-card,
+.dark-theme .search-card,
+.dark-theme .edit-note-card {
+  background-color: var(--card-background);
+  color: var(--text-color);
+}
+
+.dark-theme .mat-mdc-form-field-label {
+  color: var(--secondary-text-color);
+}
+
+.dark-theme .mat-mdc-input-element {
+  color: var(--text-color);
+}
+
+.dark-theme .mat-mdc-form-field-underline {
+  background-color: var(--border-color);
+}
+
+.dark-theme .category-chip {
+  background-color: #505050;
+  color: var(--text-color);
+}
+
+.dark-theme .category-chip:hover {
+  background-color: #606060;
+}
+
+.dark-theme .category-chip.selected {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.dark-theme .note-category {
+  background-color: #505050;
+  color: var(--text-color);
+}
+
+.dark-theme .note-category:hover {
+  background-color: #606060;
+}
+
+.dark-theme .note-category.selected {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.dark-theme .settings-info {
+  background-color: #404040;
+}
+
+.dark-theme .room-cell {
+  background-color: #424242;
+  border-color: #616161;
+}
+
+/* Global utility classes */
+.full-width {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-1 {
+  margin-top: 8px;
+}
+
+.mt-2 {
+  margin-top: 16px;
+}
+
+.mb-1 {
+  margin-bottom: 8px;
+}
+
+.mb-2 {
+  margin-bottom: 16px;
+}
+
+.p-1 {
+  padding: 8px;
+}
+
+.p-2 {
+  padding: 16px;
+}
