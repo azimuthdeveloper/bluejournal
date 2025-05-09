@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Install Blue Journal</h2>
+<div mat-dialog-content>
+  <div class="install-content">
+    <mat-icon class="app-icon">book</mat-icon>
+    <div class="install-message">
+      <p>Install Blue Journal on your device for a better experience!</p>
+      <p>You'll be able to use the app offline and it will load faster.</p>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onDismiss()">Not Now</button>
+  <button mat-raised-button color="primary" (click)="onInstall()">
+    <mat-icon>get_app</mat-icon> Install
+  </button>
+</div>

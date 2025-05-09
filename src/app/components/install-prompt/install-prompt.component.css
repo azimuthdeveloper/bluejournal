@@ -1,0 +1,30 @@
+.install-content {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.app-icon {
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+  margin-right: 16px;
+  color: var(--primary-color, #1976d2);
+}
+
+.install-message {
+  flex: 1;
+}
+
+.install-message p {
+  margin: 8px 0;
+}
+
+mat-dialog-actions {
+  justify-content: flex-end;
+  padding: 8px 0;
+}
+
+button mat-icon {
+  margin-right: 8px;
+}

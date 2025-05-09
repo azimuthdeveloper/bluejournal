@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>Create New Note</h2>
+<div mat-dialog-content>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Title</mat-label>
+    <input matInput [(ngModel)]="newNote.title" placeholder="Note title">
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Content</mat-label>
+    <textarea matInput [(ngModel)]="newNote.content" rows="4" placeholder="Note content"></textarea>
+  </mat-form-field>
+
+  <div class="category-section">
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Categories (Optional)</mat-label>
+      <input matInput
+             #categoriesInput
+             [value]="newNote.categories?.join(', ')"
+             placeholder="Enter categories separated by commas"
+             (blur)="newNote.categories = processCategoriesInput(categoriesInput.value)">
+      <mat-hint>Type categories separated by commas (e.g., "work, personal, important")</mat-hint>
+    </mat-form-field>
+  </div>
+
+  <!-- Image upload -->
+  <div class="image-upload-container">
+    <input type="file" accept="image/*" #imageInput style="display: none" (change)="onImageSelected($event)">
+    <button mat-stroked-button type="button" (click)="imageInput.click()" class="upload-btn">
+      <mat-icon>image</mat-icon> Add Image
+    </button>
+
+    @if (newNote.images && newNote.images.length > 0) {
+      <button mat-stroked-button color="warn" type="button" (click)="clearImages()" class="clear-btn">
+        <mat-icon>delete_sweep</mat-icon> Clear All Images
+      </button>
+
+      <div class="images-grid">
+        @for (image of newNote.images; track $index; let i = $index) {
+          <div class="image-preview-container">
+            <img [src]="image" class="image-preview">
+            <button mat-icon-button color="warn" (click)="removeImage(i)" class="remove-image-btn">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave()">
+    <mat-icon>add</mat-icon> Add Note
+  </button>
+</div>

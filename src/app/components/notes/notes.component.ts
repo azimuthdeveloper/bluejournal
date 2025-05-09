@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -9,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CreateNoteDialogComponent } from '../create-note-dialog/create-note-dialog.component';
 
 interface Note {
   id: number;
@@ -34,26 +36,71 @@ interface Note {
     MatIconModule,
     MatListModule,
     MatDividerModule,
-    MatSelectModule
+    MatSelectModule,
+    MatDialogModule
   ],
   templateUrl: './notes.component.html',
   styleUrls: ['./notes.component.css']
 })
 export class NotesComponent implements OnInit {
   notes: Note[] = [];
-  newNote: Note = this.createEmptyNote();
   searchText: string = '';
   selectedCategories: string[] = [];
   editingNote: Note | null = null;
   selectedImage: string | null = null;
   categoriesInput: string = '';
 
+  // FAB visibility control
+  isFabVisible = true;
+  lastScrollTop = 0;
+
+  // Reference to the container element for scroll detection
+  @ViewChild('notesContainer') notesContainer!: ElementRef;
+
   // Categories array
   categories: string[] = [];
+
+  constructor(private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadNotes();
     this.loadCategories();
+  }
+
+  // Scroll event handler
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+
+    // Show/hide FAB based on scroll direction
+    if (scrollTop > this.lastScrollTop) {
+      // Scrolling down, hide the FAB
+      this.isFabVisible = false;
+    } else {
+      // Scrolling up, show the FAB
+      this.isFabVisible = true;
+    }
+
+    this.lastScrollTop = scrollTop;
+  }
+
+  // Open create note dialog
+  openCreateNoteDialog(): void {
+    const dialogRef = this.dialog.open(CreateNoteDialogComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: { categories: this.categories }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Add the new note to the notes array
+        this.notes.unshift(result);
+        this.saveNotes();
+        // Save any new categories
+        this.saveCategories();
+      }
+    });
   }
 
   createEmptyNote(): Note {
@@ -134,14 +181,6 @@ export class NotesComponent implements OnInit {
     localStorage.setItem('bluejournal_notes', JSON.stringify(this.notes));
   }
 
-  addNote(): void {
-    if (this.newNote.title.trim() || this.newNote.content.trim()) {
-      this.notes.unshift({ ...this.newNote });
-      this.saveNotes();
-      this.newNote = this.createEmptyNote();
-    }
-  }
-
   deleteNote(index: number): void {
     this.notes.splice(index, 1);
     this.saveNotes();
@@ -213,10 +252,10 @@ export class NotesComponent implements OnInit {
     return filtered;
   }
 
-  // Image handling methods
-  onImageSelected(event: Event, isEditMode: boolean = false): void {
+  // Image handling for edit mode only
+  onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
+    if (input.files && input.files.length > 0 && this.editingNote) {
       const file = input.files[0];
 
       // Check if file is an image
@@ -232,23 +271,13 @@ export class NotesComponent implements OnInit {
 
         // Optimize the image
         this.optimizeImage(imageData, 1200, 200).then(optimizedImageData => {
-          if (isEditMode && this.editingNote) {
-            // Initialize images array if it doesn't exist
-            if (!this.editingNote.images) {
-              this.editingNote.images = [];
-            }
-            this.editingNote.images.push(optimizedImageData);
-            // Keep single image for backward compatibility
-            this.editingNote.image = optimizedImageData;
-          } else {
-            // Initialize images array if it doesn't exist
-            if (!this.newNote.images) {
-              this.newNote.images = [];
-            }
-            this.newNote.images.push(optimizedImageData);
-            // Keep single image for backward compatibility
-            this.newNote.image = optimizedImageData;
+          // Initialize images array if it doesn't exist
+          if (!this.editingNote!.images) {
+            this.editingNote!.images = [];
           }
+          this.editingNote!.images.push(optimizedImageData);
+          // Keep single image for backward compatibility
+          this.editingNote!.image = optimizedImageData;
         });
       };
 
@@ -256,7 +285,7 @@ export class NotesComponent implements OnInit {
     }
   }
 
-  // Optimize image to reduce file size
+  // Optimize image to reduce file size (for edit mode)
   private optimizeImage(dataUrl: string, maxDimension: number, maxSizeKB: number): Promise<string> {
     return new Promise((resolve) => {
       const img = new Image();
@@ -312,26 +341,20 @@ export class NotesComponent implements OnInit {
     });
   }
 
-  removeImage(index: number, isEditMode: boolean = false): void {
-    if (isEditMode && this.editingNote && this.editingNote.images) {
+  // Remove image in edit mode
+  removeImage(index: number): void {
+    if (this.editingNote && this.editingNote.images) {
       this.editingNote.images.splice(index, 1);
       // Update single image for backward compatibility
       this.editingNote.image = this.editingNote.images.length > 0 ? this.editingNote.images[0] : undefined;
-    } else if (!isEditMode && this.newNote.images) {
-      this.newNote.images.splice(index, 1);
-      // Update single image for backward compatibility
-      this.newNote.image = this.newNote.images.length > 0 ? this.newNote.images[0] : undefined;
     }
   }
 
-  // Remove all images
-  clearImages(isEditMode: boolean = false): void {
-    if (isEditMode && this.editingNote) {
+  // Remove all images in edit mode
+  clearImages(): void {
+    if (this.editingNote) {
       this.editingNote.images = [];
       this.editingNote.image = undefined;
-    } else {
-      this.newNote.images = [];
-      this.newNote.image = undefined;
     }
   }
 }
