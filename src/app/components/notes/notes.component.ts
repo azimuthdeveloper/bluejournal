@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -11,6 +11,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CreateNoteDialogComponent } from '../create-note-dialog/create-note-dialog.component';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 interface Note {
   id: number;
@@ -42,13 +44,17 @@ interface Note {
   templateUrl: './notes.component.html',
   styleUrls: ['./notes.component.css']
 })
-export class NotesComponent implements OnInit {
+export class NotesComponent implements OnInit, OnDestroy {
   notes: Note[] = [];
   searchText: string = '';
   selectedCategories: string[] = [];
   editingNote: Note | null = null;
   selectedImage: string | null = null;
   categoriesInput: string = '';
+
+  // Debounce for auto-save
+  private noteChanges = new Subject<Note>();
+  private noteChangeSubscription: Subscription | null = null;
 
   // FAB visibility control
   isFabVisible = true;
@@ -65,6 +71,21 @@ export class NotesComponent implements OnInit {
   ngOnInit(): void {
     this.loadNotes();
     this.loadCategories();
+
+    // Set up debounce for auto-save
+    this.noteChangeSubscription = this.noteChanges.pipe(
+      debounceTime(1000), // Wait for 1 second of inactivity
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    ).subscribe(note => {
+      this.autoSaveNote(note);
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscriptions
+    if (this.noteChangeSubscription) {
+      this.noteChangeSubscription.unsubscribe();
+    }
   }
 
   // Scroll event handler
@@ -189,12 +210,17 @@ export class NotesComponent implements OnInit {
   editNote(note: Note): void {
     // Set the editing note to a copy of the selected note
     this.editingNote = { ...note };
+
+    // Set up property change detection for auto-save
+    this.setupNoteChangeDetection();
   }
 
+  // This method is kept for backward compatibility but is no longer used in the UI
   cancelEdit(): void {
     this.editingNote = null;
   }
 
+  // This method is kept for backward compatibility but is now called by the debounce
   saveEdit(): void {
     if (this.editingNote) {
       const index = this.notes.findIndex(n => n.id === this.editingNote!.id);
@@ -202,7 +228,38 @@ export class NotesComponent implements OnInit {
         this.notes[index] = { ...this.editingNote };
         this.saveNotes();
       }
-      this.editingNote = null;
+    }
+  }
+
+  // Auto-save note when changes are detected
+  private autoSaveNote(note: Note): void {
+    const index = this.notes.findIndex(n => n.id === note.id);
+    if (index !== -1) {
+      this.notes[index] = { ...note };
+      this.saveNotes();
+    }
+  }
+
+  // Method called when any note field changes
+  onNoteFieldChange(): void {
+    if (this.editingNote) {
+      this.noteChanges.next({ ...this.editingNote });
+    }
+  }
+
+  // Update categories and trigger auto-save
+  updateCategories(categoriesInput: string): void {
+    if (this.editingNote) {
+      this.editingNote.categories = this.processCategoriesInput(categoriesInput);
+      this.noteChanges.next({ ...this.editingNote });
+    }
+  }
+
+  // Set up change detection for auto-save
+  private setupNoteChangeDetection(): void {
+    // Emit the initial state
+    if (this.editingNote) {
+      this.noteChanges.next({ ...this.editingNote });
     }
   }
 
@@ -278,6 +335,8 @@ export class NotesComponent implements OnInit {
           this.editingNote!.images.push(optimizedImageData);
           // Keep single image for backward compatibility
           this.editingNote!.image = optimizedImageData;
+          // Trigger auto-save
+          this.noteChanges.next({ ...this.editingNote });
         });
       };
 
@@ -347,6 +406,8 @@ export class NotesComponent implements OnInit {
       this.editingNote.images.splice(index, 1);
       // Update single image for backward compatibility
       this.editingNote.image = this.editingNote.images.length > 0 ? this.editingNote.images[0] : undefined;
+      // Trigger auto-save
+      this.noteChanges.next({ ...this.editingNote });
     }
   }
 
@@ -355,6 +416,8 @@ export class NotesComponent implements OnInit {
     if (this.editingNote) {
       this.editingNote.images = [];
       this.editingNote.image = undefined;
+      // Trigger auto-save
+      this.noteChanges.next({ ...this.editingNote });
     }
   }
 }

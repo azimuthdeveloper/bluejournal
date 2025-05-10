@@ -45,9 +45,6 @@ export class SettingsComponent implements OnInit {
   // App installation
   canInstallApp: boolean = false;
 
-  // Row flip setting
-  flipRows: boolean = false;
-
   constructor(
     private router: Router,
     private appComponent: AppComponent,
@@ -83,12 +80,6 @@ export class SettingsComponent implements OnInit {
         this.appComponent.enableMapTab();
       }
     }
-
-    // Load row flip preference from localStorage
-    const flipRows = localStorage.getItem('bluejournal_flip_rows');
-    if (flipRows !== null) {
-      this.flipRows = flipRows === 'true';
-    }
   }
 
   // Method to toggle dark mode
@@ -106,16 +97,12 @@ export class SettingsComponent implements OnInit {
     if (levelId === 'little') {
       // Enable map tab in app component
       this.appComponent.enableMapTab();
+    } else if (levelId === 'nothing') {
+      // Disable map tab in app component
+      this.appComponent.disableMapTab();
     }
   }
 
-  // Method to toggle row flip
-  toggleRowFlip(): void {
-    this.flipRows = !this.flipRows;
-
-    // Save to localStorage
-    localStorage.setItem('bluejournal_flip_rows', this.flipRows.toString());
-  }
 
   // Method to toggle ads visibility
   toggleAds(): void {

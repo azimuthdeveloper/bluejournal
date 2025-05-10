@@ -17,4 +17,9 @@
   <div class="content-container" [ngClass]="{'no-toolbar': isWarningPage}">
     <router-outlet></router-outlet>
   </div>
+
+  <!-- Footer with commit hash -->
+  <div class="app-footer" *ngIf="commitHash">
+    <span class="commit-hash">{{ commitHash }}</span>
+  </div>
 </div>

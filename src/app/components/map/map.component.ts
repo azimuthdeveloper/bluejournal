@@ -6,6 +6,7 @@ import { RoomDetailsComponent } from '../room-details/room-details.component';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 interface Room {
   id: number;
@@ -22,7 +23,8 @@ interface Room {
     MatDialogModule,
     FormsModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    MatSlideToggleModule
   ],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css']
@@ -123,5 +125,16 @@ export class MapComponent implements OnInit {
 
   private saveRooms(): void {
     localStorage.setItem('bluejournal_rooms', JSON.stringify(this.rooms));
+  }
+
+  // Method to toggle row flip
+  toggleRowFlip(): void {
+    this.flipRows = !this.flipRows;
+
+    // Save to localStorage
+    localStorage.setItem('bluejournal_flip_rows', this.flipRows.toString());
+
+    // Update row numbers based on new flip state
+    this.updateRowNumbers();
   }
 }

@@ -1,0 +1,54 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.content-container {
+  margin-top: 64px; /* Height of the toolbar */
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* No margin needed when toolbar is hidden */
+.content-container.no-toolbar {
+  margin-top: 0;
+  padding: 0;
+}
+
+nav a.active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 600px) {
+  .content-container:not(.no-toolbar) {
+    margin-top: 56px; /* Height of the toolbar on mobile */
+  }
+}
+
+/* Footer styles */
+.app-footer {
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--secondary-text-color);
+  background-color: var(--background-color);
+  border-top: 1px solid var(--border-color);
+}
+
+.commit-hash {
+  font-family: monospace;
+}

@@ -69,12 +69,12 @@
           <mat-card-content>
             <mat-form-field appearance="fill" class="full-width">
               <mat-label>Title</mat-label>
-              <input matInput [(ngModel)]="editingNote.title" placeholder="Note title">
+              <input matInput [(ngModel)]="editingNote.title" placeholder="Note title" (ngModelChange)="onNoteFieldChange()">
             </mat-form-field>
 
             <mat-form-field appearance="fill" class="full-width">
               <mat-label>Content</mat-label>
-              <textarea matInput [(ngModel)]="editingNote.content" rows="4" placeholder="Note content"></textarea>
+              <textarea matInput [(ngModel)]="editingNote.content" rows="4" placeholder="Note content" (ngModelChange)="onNoteFieldChange()"></textarea>
             </mat-form-field>
 
             <div class="category-section">
@@ -84,7 +84,7 @@
                        #editCategoriesInput
                        [value]="editingNote.categories?.join(', ')"
                        placeholder="Enter categories separated by commas"
-                       (blur)="editingNote.categories = processCategoriesInput(editCategoriesInput.value)">
+                       (blur)="updateCategories(editCategoriesInput.value)">
                 <mat-hint>Type categories separated by commas (e.g., "work, personal, important")</mat-hint>
               </mat-form-field>
             </div>
@@ -122,10 +122,6 @@
               }
             </div>
           </mat-card-content>
-          <mat-card-actions>
-            <button mat-button (click)="cancelEdit()">Cancel</button>
-            <button mat-raised-button color="primary" (click)="saveEdit()">Save</button>
-          </mat-card-actions>
         </mat-card>
       }
 

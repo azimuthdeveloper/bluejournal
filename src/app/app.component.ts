@@ -136,6 +136,11 @@ export class AppComponent implements OnInit, OnDestroy {
     this.showMapTab = true;
   }
 
+  // Method to disable map tab
+  disableMapTab(): void {
+    this.showMapTab = false;
+  }
+
   // Method to check if app can be installed
   canInstallApp(): boolean {
     return !!this.deferredPrompt;

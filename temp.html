@@ -1,0 +1,14 @@
+<div class="app-container">
+  <mat-toolbar color="primary" class="app-toolbar">
+    <span>{{ title }}</span>
+    <span class="toolbar-spacer"></span>
+    <nav>
+      <a mat-button routerLink="/map" routerLinkActive="active">Map</a>
+      <a mat-button routerLink="/notes" routerLinkActive="active">Notes</a>
+    </nav>
+  </mat-toolbar>
+
+  <div class="content-container">
+    <router-outlet></router-outlet>
+  </div>
+</div>
