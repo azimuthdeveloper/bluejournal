@@ -72,13 +72,6 @@ export class CreateNoteDialogComponent implements OnInit {
       .map(cat => cat.trim())
       .filter(cat => cat.length > 0);
 
-    // Add new categories to the global list
-    categories.forEach(cat => {
-      if (!this.data.categories.includes(cat)) {
-        this.data.categories.push(cat);
-      }
-    });
-
     return categories;
   }
 

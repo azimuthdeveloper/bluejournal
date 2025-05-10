@@ -6,7 +6,6 @@ import { RoomDetailsComponent } from '../room-details/room-details.component';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 interface Room {
   id: number;
@@ -23,8 +22,7 @@ interface Room {
     MatDialogModule,
     FormsModule,
     MatButtonModule,
-    MatCardModule,
-    MatSlideToggleModule
+    MatCardModule
   ],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css']
@@ -34,7 +32,6 @@ export class MapComponent implements OnInit {
   cols = 5;
   rows = 9;
   totalRooms = 45;
-  flipRows = false;
 
   // Arrays for row and column numbers
   rowNumbers: number[] = [];
@@ -59,50 +56,34 @@ export class MapComponent implements OnInit {
       this.saveRooms();
     }
 
-    // Load row flip preference from localStorage
-    const flipRows = localStorage.getItem('bluejournal_flip_rows');
-    if (flipRows !== null) {
-      this.flipRows = flipRows === 'true';
-    }
-
-    // Initialize row numbers based on flip state
+    // Initialize row numbers
     this.updateRowNumbers();
   }
 
-  // Update row numbers based on flip state
+  // Update row numbers to start at 9 and decrement
   private updateRowNumbers(): void {
-    if (this.flipRows) {
-      // Flipped: 9, 8, 7, ..., 1
-      this.rowNumbers = Array.from({ length: this.rows }, (_, i) => this.rows - i);
-    } else {
-      // Normal: 1, 2, 3, ..., 9
-      this.rowNumbers = Array.from({ length: this.rows }, (_, i) => i + 1);
-    }
+    // Numbers: 9, 8, 7, ..., 1
+    this.rowNumbers = Array.from({ length: this.rows }, (_, i) => this.rows - i);
   }
 
-  // Get rooms in the correct order based on flip state
+  // Get rooms in the correct order for descending row numbers
   getOrderedRooms(): Room[] {
-    if (!this.flipRows) {
-      // Normal order
-      return this.rooms;
-    } else {
-      // Flipped order - remap rows from bottom to top
-      const orderedRooms: Room[] = [];
+    // Remap rows from bottom to top to match descending row numbers
+    const orderedRooms: Room[] = [];
 
-      // For each row (from bottom to top)
-      for (let row = this.rows - 1; row >= 0; row--) {
-        // For each column (left to right)
-        for (let col = 0; col < this.cols; col++) {
-          // Calculate the original index
-          const originalIndex = row * this.cols + col;
+    // For each row (from bottom to top)
+    for (let row = this.rows - 1; row >= 0; row--) {
+      // For each column (left to right)
+      for (let col = 0; col < this.cols; col++) {
+        // Calculate the original index
+        const originalIndex = row * this.cols + col;
 
-          // Add the room to the ordered list
-          orderedRooms.push(this.rooms[originalIndex]);
-        }
+        // Add the room to the ordered list
+        orderedRooms.push(this.rooms[originalIndex]);
       }
-
-      return orderedRooms;
     }
+
+    return orderedRooms;
   }
 
   openRoomDetails(room: Room): void {
@@ -125,16 +106,5 @@ export class MapComponent implements OnInit {
 
   private saveRooms(): void {
     localStorage.setItem('bluejournal_rooms', JSON.stringify(this.rooms));
-  }
-
-  // Method to toggle row flip
-  toggleRowFlip(): void {
-    this.flipRows = !this.flipRows;
-
-    // Save to localStorage
-    localStorage.setItem('bluejournal_flip_rows', this.flipRows.toString());
-
-    // Update row numbers based on new flip state
-    this.updateRowNumbers();
   }
 }

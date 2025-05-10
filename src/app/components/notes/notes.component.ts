@@ -118,8 +118,8 @@ export class NotesComponent implements OnInit, OnDestroy {
         // Add the new note to the notes array
         this.notes.unshift(result);
         this.saveNotes();
-        // Save any new categories
-        this.saveCategories();
+        // Refresh categories list to include only active categories
+        this.loadCategories();
       }
     });
   }
@@ -136,22 +136,37 @@ export class NotesComponent implements OnInit, OnDestroy {
   }
 
   loadCategories(): void {
-    const savedCategories = localStorage.getItem('bluejournal_categories');
-    if (savedCategories) {
-      this.categories = JSON.parse(savedCategories);
-    }
+    // Extract all unique categories from the notes
+    const activeCategories = new Set<string>();
+
+    this.notes.forEach(note => {
+      // Add categories from the categories array
+      if (note.categories && note.categories.length > 0) {
+        note.categories.forEach(category => {
+          if (category.trim()) {
+            activeCategories.add(category);
+          }
+        });
+      }
+
+      // Add category from the single category field (for backward compatibility)
+      if (note.category && note.category.trim()) {
+        activeCategories.add(note.category);
+      }
+    });
+
+    // Convert Set to Array
+    this.categories = Array.from(activeCategories);
   }
 
+  // These methods are no longer needed as categories are now derived directly from notes
+  // Kept as empty methods for backward compatibility in case they're called elsewhere
   saveCategories(): void {
-    localStorage.setItem('bluejournal_categories', JSON.stringify(this.categories));
+    // No longer saving categories to localStorage as they're derived from notes
   }
 
   addCategory(): void {
-    if (this.categoriesInput.trim() && !this.categories.includes(this.categoriesInput.trim())) {
-      this.categories.push(this.categoriesInput.trim());
-      this.saveCategories();
-      this.categoriesInput = '';
-    }
+    // No longer manually adding categories as they're derived from notes
   }
 
   // Process comma-separated categories input
@@ -162,16 +177,6 @@ export class NotesComponent implements OnInit, OnDestroy {
     const categories = input.split(',')
       .map(cat => cat.trim())
       .filter(cat => cat.length > 0);
-
-    // Add new categories to the global list
-    categories.forEach(cat => {
-      if (!this.categories.includes(cat)) {
-        this.categories.push(cat);
-      }
-    });
-
-    // Save updated categories to localStorage
-    this.saveCategories();
 
     return categories;
   }
@@ -205,6 +210,8 @@ export class NotesComponent implements OnInit, OnDestroy {
   deleteNote(index: number): void {
     this.notes.splice(index, 1);
     this.saveNotes();
+    // Refresh categories list after deleting a note
+    this.loadCategories();
   }
 
   editNote(note: Note): void {
@@ -237,13 +244,15 @@ export class NotesComponent implements OnInit, OnDestroy {
     if (index !== -1) {
       this.notes[index] = { ...note };
       this.saveNotes();
+      // Refresh categories list after saving a note
+      this.loadCategories();
     }
   }
 
   // Method called when any note field changes
   onNoteFieldChange(): void {
     if (this.editingNote) {
-      this.noteChanges.next({ ...this.editingNote });
+      this.noteChanges.next({ ...this.editingNote } as Note);
     }
   }
 
@@ -251,7 +260,7 @@ export class NotesComponent implements OnInit, OnDestroy {
   updateCategories(categoriesInput: string): void {
     if (this.editingNote) {
       this.editingNote.categories = this.processCategoriesInput(categoriesInput);
-      this.noteChanges.next({ ...this.editingNote });
+      this.noteChanges.next({ ...this.editingNote } as Note);
     }
   }
 
@@ -259,7 +268,7 @@ export class NotesComponent implements OnInit, OnDestroy {
   private setupNoteChangeDetection(): void {
     // Emit the initial state
     if (this.editingNote) {
-      this.noteChanges.next({ ...this.editingNote });
+      this.noteChanges.next({ ...this.editingNote } as Note);
     }
   }
 
@@ -306,6 +315,11 @@ export class NotesComponent implements OnInit, OnDestroy {
       });
     }
 
+    // Filter out the note that's currently being edited
+    if (this.editingNote) {
+      filtered = filtered.filter(note => note.id !== this.editingNote!.id);
+    }
+
     return filtered;
   }
 
@@ -336,7 +350,7 @@ export class NotesComponent implements OnInit, OnDestroy {
           // Keep single image for backward compatibility
           this.editingNote!.image = optimizedImageData;
           // Trigger auto-save
-          this.noteChanges.next({ ...this.editingNote });
+          this.noteChanges.next({ ...this.editingNote } as Note);
         });
       };
 
@@ -407,7 +421,7 @@ export class NotesComponent implements OnInit, OnDestroy {
       // Update single image for backward compatibility
       this.editingNote.image = this.editingNote.images.length > 0 ? this.editingNote.images[0] : undefined;
       // Trigger auto-save
-      this.noteChanges.next({ ...this.editingNote });
+      this.noteChanges.next({ ...this.editingNote } as Note);
     }
   }
 
@@ -417,7 +431,7 @@ export class NotesComponent implements OnInit, OnDestroy {
       this.editingNote.images = [];
       this.editingNote.image = undefined;
       // Trigger auto-save
-      this.noteChanges.next({ ...this.editingNote });
+      this.noteChanges.next({ ...this.editingNote } as Note);
     }
   }
 }
