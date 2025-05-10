@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AppComponent } from '../../app.component';
@@ -18,7 +19,8 @@ import { ThemeService } from '../../services/theme.service';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatRadioModule
   ],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
@@ -26,11 +28,13 @@ import { ThemeService } from '../../services/theme.service';
 export class SettingsComponent implements OnInit {
   // Knowledge levels
   knowledgeLevels = [
+    { id: 'nothing', label: 'I know nothing', enabled: true },
     { id: 'little', label: 'I know a little', enabled: true },
     { id: 'bit', label: 'I know a bit', enabled: false },
     { id: 'bit-more', label: 'I know a bit more', enabled: false },
     { id: 'lot', label: 'I know a lot', enabled: false }
   ];
+  selectedKnowledgeLevel: string = 'nothing';
 
   // Ads settings
   showAds: boolean = true;
@@ -40,6 +44,9 @@ export class SettingsComponent implements OnInit {
 
   // App installation
   canInstallApp: boolean = false;
+
+  // Row flip setting
+  flipRows: boolean = false;
 
   constructor(
     private router: Router,
@@ -65,6 +72,23 @@ export class SettingsComponent implements OnInit {
 
     // Check if app can be installed
     this.canInstallApp = this.appComponent.canInstallApp();
+
+    // Load knowledge level from localStorage
+    const knowledgeLevel = localStorage.getItem('bluejournal_knowledge_level');
+    if (knowledgeLevel !== null) {
+      this.selectedKnowledgeLevel = knowledgeLevel;
+
+      // If the knowledge level is 'little', enable the map tab
+      if (knowledgeLevel === 'little') {
+        this.appComponent.enableMapTab();
+      }
+    }
+
+    // Load row flip preference from localStorage
+    const flipRows = localStorage.getItem('bluejournal_flip_rows');
+    if (flipRows !== null) {
+      this.flipRows = flipRows === 'true';
+    }
   }
 
   // Method to toggle dark mode
@@ -74,13 +98,23 @@ export class SettingsComponent implements OnInit {
 
   // Method to handle knowledge level selection
   selectKnowledgeLevel(levelId: string): void {
+    this.selectedKnowledgeLevel = levelId;
+
+    // Save to localStorage
+    localStorage.setItem('bluejournal_knowledge_level', levelId);
+
     if (levelId === 'little') {
       // Enable map tab in app component
       this.appComponent.enableMapTab();
-
-      // Navigate to notes page
-      this.router.navigate(['/notes']);
     }
+  }
+
+  // Method to toggle row flip
+  toggleRowFlip(): void {
+    this.flipRows = !this.flipRows;
+
+    // Save to localStorage
+    localStorage.setItem('bluejournal_flip_rows', this.flipRows.toString());
   }
 
   // Method to toggle ads visibility

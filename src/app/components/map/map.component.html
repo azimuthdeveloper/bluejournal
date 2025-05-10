@@ -1,0 +1,41 @@
+<div class="map-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Blue Prince Map</mat-card-title>
+      <mat-card-subtitle>Tap on a room to add details or assign a letter</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="grid-container">
+        <!-- Column numbers -->
+        <div class="column-numbers">
+          <div class="column-number-spacer"></div>
+          @for (colNum of colNumbers; track colNum) {
+            <div class="column-number">{{ colNum }}</div>
+          }
+        </div>
+
+        <div class="grid-with-row-numbers">
+          <!-- Row numbers -->
+          <div class="row-numbers">
+            @for (rowNum of rowNumbers; track rowNum) {
+              <div class="row-number">{{ rowNum }}</div>
+            }
+          </div>
+
+          <!-- Room grid -->
+          <div class="room-grid">
+            @for (room of getOrderedRooms(); track room.id) {
+              <div class="room-cell" (click)="openRoomDetails(room)">
+                <div class="room-content">
+                  @if (room.letter) {
+                    <div class="room-letter">{{ room.letter }}</div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

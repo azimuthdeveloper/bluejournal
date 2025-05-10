@@ -21,9 +21,12 @@
   margin-bottom: 24px;
 }
 
-.knowledge-level button {
+.knowledge-level {
+  padding: 8px 0;
+}
+
+.knowledge-level mat-radio-button {
   width: 100%;
-  padding: 12px;
   font-size: 16px;
 }
 
@@ -80,12 +83,14 @@
 
 /* Toggle containers */
 .ads-toggle-container,
-.theme-toggle-container {
+.theme-toggle-container,
+.row-flip-toggle-container {
   margin-top: 16px;
 }
 
 .ads-toggle-container .settings-description,
-.theme-toggle-container .settings-description {
+.theme-toggle-container .settings-description,
+.row-flip-toggle-container .settings-description {
   margin-top: 8px;
   margin-bottom: 0;
   font-size: 14px;

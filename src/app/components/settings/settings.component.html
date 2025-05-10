@@ -13,21 +13,22 @@
         </p>
 
         <div class="knowledge-levels">
-          <div *ngFor="let level of knowledgeLevels" class="knowledge-level">
-            <button
-              mat-raised-button
-              [color]="level.enabled ? 'primary' : ''"
-              [disabled]="!level.enabled"
-              (click)="selectKnowledgeLevel(level.id)">
-              {{ level.label }}
-            </button>
-          </div>
+          <mat-radio-group [(ngModel)]="selectedKnowledgeLevel" (change)="selectKnowledgeLevel(selectedKnowledgeLevel)">
+            <div *ngFor="let level of knowledgeLevels" class="knowledge-level">
+              <mat-radio-button
+                [value]="level.id"
+                [disabled]="!level.enabled"
+                color="primary">
+                {{ level.label }}
+              </mat-radio-button>
+            </div>
+          </mat-radio-group>
         </div>
 
         <div class="settings-info">
           <mat-icon>info</mat-icon>
           <p>
-            Only the first knowledge level is currently available.
+            Only the first two knowledge levels are currently available.
             More levels will be unlocked in future updates.
           </p>
         </div>
@@ -49,6 +50,22 @@
         </div>
       </div>
 
+      <!-- Map Settings Section -->
+      <div class="settings-section">
+        <h3>Map Settings</h3>
+        <div class="row-flip-toggle-container">
+          <mat-slide-toggle
+            [(ngModel)]="flipRows"
+            (change)="toggleRowFlip()"
+            color="primary">
+            Flip Row Numbers
+          </mat-slide-toggle>
+          <p class="settings-description">
+            Toggle to flip the row numbers and remap the data (bottom row becomes top row).
+          </p>
+        </div>
+      </div>
+
       <!-- Ads Settings Section -->
       <div class="settings-section">
         <h3>Advertisement Settings</h3>
@@ -61,7 +78,7 @@
           </mat-slide-toggle>
           <p class="settings-description">
             Toggle this setting to show or hide advertisements throughout the app.
-            Disabling ads helps support the development of Blue Journal.
+            Ads helps support the development of Blue Journal.
           </p>
         </div>
       </div>
