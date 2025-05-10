@@ -76,8 +76,11 @@ export class SettingsComponent implements OnInit {
       this.selectedKnowledgeLevel = knowledgeLevel;
 
       // If the knowledge level is 'little', enable the map tab
+      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
       if (knowledgeLevel === 'little') {
-        this.appComponent.enableMapTab();
+        setTimeout(() => {
+          this.appComponent.enableMapTab();
+        });
       }
     }
   }
@@ -96,10 +99,15 @@ export class SettingsComponent implements OnInit {
 
     if (levelId === 'little') {
       // Enable map tab in app component
-      this.appComponent.enableMapTab();
+      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+      setTimeout(() => {
+        this.appComponent.enableMapTab();
+      });
     } else if (levelId === 'nothing') {
       // Disable map tab in app component
-      this.appComponent.disableMapTab();
+      setTimeout(() => {
+        this.appComponent.disableMapTab();
+      });
     }
   }
 
