@@ -52,6 +52,11 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- Barrier overlay when editing a note -->
+  @if (editingNote) {
+    <div class="edit-barrier" (click)="dismissEditMode()" aria-label="Click to save and exit edit mode"></div>
+  }
+
   <div class="notes-list">
     @if (filteredNotes.length === 0) {
       <mat-card class="empty-state">

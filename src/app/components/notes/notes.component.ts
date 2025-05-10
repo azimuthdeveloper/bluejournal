@@ -10,6 +10,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { CreateNoteDialogComponent } from '../create-note-dialog/create-note-dialog.component';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -39,7 +40,8 @@ interface Note {
     MatListModule,
     MatDividerModule,
     MatSelectModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSnackBarModule
   ],
   templateUrl: './notes.component.html',
   styleUrls: ['./notes.component.css']
@@ -66,7 +68,7 @@ export class NotesComponent implements OnInit, OnDestroy {
   // Categories array
   categories: string[] = [];
 
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog, private snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
     this.loadNotes();
@@ -238,6 +240,20 @@ export class NotesComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Method to handle barrier click - save note and exit edit mode
+  dismissEditMode(): void {
+    if (this.editingNote) {
+      // Save the current note with notification
+      const noteToSave = { ...this.editingNote };
+
+      // Exit edit mode
+      this.editingNote = null;
+
+      // Update the note and show notification
+      this.updateNoteWithNotification(noteToSave);
+    }
+  }
+
   // Auto-save note when changes are detected
   private autoSaveNote(note: Note): void {
     const index = this.notes.findIndex(n => n.id === note.id);
@@ -246,6 +262,24 @@ export class NotesComponent implements OnInit, OnDestroy {
       this.saveNotes();
       // Refresh categories list after saving a note
       this.loadCategories();
+    }
+  }
+
+  // Method to update the note when editing is complete
+  private updateNoteWithNotification(note: Note): void {
+    const index = this.notes.findIndex(n => n.id === note.id);
+    if (index !== -1) {
+      this.notes[index] = { ...note };
+      this.saveNotes();
+      // Refresh categories list after saving a note
+      this.loadCategories();
+
+      // Show toast notification
+      this.snackBar.open('Note updated', 'Close', {
+        duration: 3000, // 3 seconds
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom'
+      });
     }
   }
 
