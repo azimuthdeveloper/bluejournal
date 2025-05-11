@@ -10,8 +10,10 @@ import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { ThemeService } from './services/theme.service';
 import { GitInfoService } from './services/git-info.service';
+import { UpdateService } from './services/update.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InstallPromptComponent } from './components/install-prompt/install-prompt.component';
+import { UpdatePromptComponent } from './components/update-prompt/update-prompt.component';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +28,9 @@ import { InstallPromptComponent } from './components/install-prompt/install-prom
     MatIconModule,
     MatSidenavModule,
     MatListModule,
-    MatDialogModule
+    MatDialogModule,
+    InstallPromptComponent,
+    UpdatePromptComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -43,11 +47,13 @@ export class AppComponent implements OnInit, OnDestroy {
   private promptRejected = false;
 
   private themeSubscription: Subscription | null = null;
+  private updateSubscription: Subscription | null = null;
 
   constructor(
     private router: Router,
     private themeService: ThemeService,
     private gitInfoService: GitInfoService,
+    private updateService: UpdateService,
     private dialog: MatDialog
   ) {
     // Subscribe to router events to detect when the route changes
@@ -63,6 +69,9 @@ export class AppComponent implements OnInit, OnDestroy {
         this.showInstallPrompt();
       }
     });
+
+    // Check for service worker updates at launch
+    this.checkForUpdates();
   }
 
   // Listen for beforeinstallprompt event
@@ -94,6 +103,36 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Check for service worker updates
+   */
+  private checkForUpdates(): void {
+    if (!this.updateService.isEnabled) {
+      console.log('Service Worker updates are not enabled');
+      return;
+    }
+
+    // Check for updates at launch
+    this.updateService.checkForUpdates();
+
+    // Subscribe to update events
+    this.updateSubscription = this.updateService.getUpdates().subscribe(event => {
+      console.log('Update available:', event);
+
+      // Show update prompt
+      this.updateService.showUpdatePrompt(event.current, event.available)
+        .subscribe(result => {
+          if (result) {
+            // User chose to update
+            this.updateService.activateUpdate().then(() => {
+              console.log('Update activated');
+              this.updateService.reloadPage();
+            });
+          }
+        });
+    });
+  }
+
   // Show the installation prompt dialog
   showInstallPrompt(): void {
     if (!this.deferredPrompt || this.promptShown) {
@@ -123,6 +162,10 @@ export class AppComponent implements OnInit, OnDestroy {
     // Unsubscribe to prevent memory leaks
     if (this.themeSubscription) {
       this.themeSubscription.unsubscribe();
+    }
+
+    if (this.updateSubscription) {
+      this.updateSubscription.unsubscribe();
     }
   }
 
