@@ -349,10 +349,8 @@ export class NotesComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Filter out the note that's currently being edited
-    if (this.editingNote) {
-      filtered = filtered.filter(note => note.id !== this.editingNote!.id);
-    }
+    // No longer filtering out the note that's currently being edited
+    // This allows the note to maintain its position in the list
 
     return filtered;
   }

@@ -65,123 +65,124 @@
         </mat-card-content>
       </mat-card>
     } @else {
-      <!-- Edit mode form -->
-      @if (editingNote) {
-        <mat-card class="edit-note-card">
-          <mat-card-header>
-            <mat-card-title>Edit Note</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <mat-form-field appearance="fill" class="full-width">
-              <mat-label>Title</mat-label>
-              <input matInput [(ngModel)]="editingNote.title" placeholder="Note title" (ngModelChange)="onNoteFieldChange()">
-            </mat-form-field>
-
-            <mat-form-field appearance="fill" class="full-width">
-              <mat-label>Content</mat-label>
-              <textarea matInput [(ngModel)]="editingNote.content" rows="4" placeholder="Note content" (ngModelChange)="onNoteFieldChange()"></textarea>
-            </mat-form-field>
-
-            <div class="category-section">
-              <mat-form-field appearance="fill" class="full-width">
-                <mat-label>Categories (Optional)</mat-label>
-                <input matInput
-                       #editCategoriesInput
-                       [value]="editingNote.categories?.join(', ')"
-                       placeholder="Enter categories separated by commas"
-                       (blur)="updateCategories(editCategoriesInput.value)">
-                <mat-hint>Type categories separated by commas (e.g., "work, personal, important")</mat-hint>
-              </mat-form-field>
-            </div>
-
-            <!-- Image upload for edit mode -->
-            <div class="image-upload-container">
-              <input type="file" accept="image/*" #editImageInput style="display: none" (change)="onImageSelected($event)">
-              <button mat-stroked-button type="button" (click)="editImageInput.click()" class="upload-btn">
-                <mat-icon>image</mat-icon> Add Image
-              </button>
-
-              @if (editingNote.images && editingNote.images.length > 0) {
-                <button mat-stroked-button color="warn" type="button" (click)="clearImages()" class="clear-btn">
-                  <mat-icon>delete_sweep</mat-icon> Clear All Images
-                </button>
-
-                <div class="images-grid">
-                  @for (image of editingNote.images; track $index; let i = $index) {
-                    <div class="image-preview-container">
-                      <img [src]="image" class="image-preview">
-                      <button mat-icon-button color="warn" (click)="removeImage(i)" class="remove-image-btn">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </div>
-                  }
-                </div>
-              } @else if (editingNote.image) {
-                <!-- Backward compatibility for single image -->
-                <div class="image-preview-container">
-                  <img [src]="editingNote.image" class="image-preview">
-                  <button mat-icon-button color="warn" (click)="clearImages()" class="remove-image-btn">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              }
-            </div>
-          </mat-card-content>
-        </mat-card>
-      }
-
       <!-- Note cards -->
       @for (note of filteredNotes; track note.id; let i = $index) {
-        <mat-card class="note-card">
-          <mat-card-header>
-            <mat-card-title>{{ note.title }}</mat-card-title>
-            <mat-card-subtitle>
-              <span class="note-date">{{ note.createdAt | date:'medium' }}</span>
-              <div class="note-categories">
-                @if (note.categories && note.categories.length > 0) {
-                  @for (category of note.categories; track category) {
-                    <span class="note-category"
-                          [class.selected]="selectedCategories.includes(category)"
-                          (click)="filterByCategory(category); $event.stopPropagation()">
-                      {{ category }}
-                    </span>
-                  }
-                } @else if (note.category) {
-                  <span class="note-category"
-                        [class.selected]="selectedCategories.includes(note.category)"
-                        (click)="filterByCategory(note.category); $event.stopPropagation()">
-                    {{ note.category }}
-                  </span>
-                }
+        <!-- Edit mode form (displayed in place of the note card) -->
+        @if (editingNote && editingNote.id === note.id) {
+          <mat-card class="edit-note-card">
+            <mat-card-header>
+              <mat-card-title>Edit Note</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Title</mat-label>
+                <input matInput [(ngModel)]="editingNote.title" placeholder="Note title" (ngModelChange)="onNoteFieldChange()">
+              </mat-form-field>
+
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Content</mat-label>
+                <textarea matInput [(ngModel)]="editingNote.content" rows="4" placeholder="Note content" (ngModelChange)="onNoteFieldChange()"></textarea>
+              </mat-form-field>
+
+              <div class="category-section">
+                <mat-form-field appearance="fill" class="full-width">
+                  <mat-label>Categories (Optional)</mat-label>
+                  <input matInput
+                         #editCategoriesInput
+                         [value]="editingNote.categories?.join(', ')"
+                         placeholder="Enter categories separated by commas"
+                         (blur)="updateCategories(editCategoriesInput.value)">
+                  <mat-hint>Type categories separated by commas (e.g., "work, personal, important")</mat-hint>
+                </mat-form-field>
               </div>
-            </mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            @if (note.images && note.images.length > 0) {
-              <div class="note-images-grid">
-                @for (image of note.images; track $index) {
-                  <div class="note-image-container">
-                    <img [src]="image" class="note-image">
+
+              <!-- Image upload for edit mode -->
+              <div class="image-upload-container">
+                <input type="file" accept="image/*" #editImageInput style="display: none" (change)="onImageSelected($event)">
+                <button mat-stroked-button type="button" (click)="editImageInput.click()" class="upload-btn">
+                  <mat-icon>image</mat-icon> Add Image
+                </button>
+
+                @if (editingNote.images && editingNote.images.length > 0) {
+                  <button mat-stroked-button color="warn" type="button" (click)="clearImages()" class="clear-btn">
+                    <mat-icon>delete_sweep</mat-icon> Clear All Images
+                  </button>
+
+                  <div class="images-grid">
+                    @for (image of editingNote.images; track $index; let i = $index) {
+                      <div class="image-preview-container">
+                        <img [src]="image" class="image-preview">
+                        <button mat-icon-button color="warn" (click)="removeImage(i)" class="remove-image-btn">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                } @else if (editingNote.image) {
+                  <!-- Backward compatibility for single image -->
+                  <div class="image-preview-container">
+                    <img [src]="editingNote.image" class="image-preview">
+                    <button mat-icon-button color="warn" (click)="clearImages()" class="remove-image-btn">
+                      <mat-icon>delete</mat-icon>
+                    </button>
                   </div>
                 }
               </div>
-            } @else if (note.image) {
-              <!-- Backward compatibility for single image -->
-              <div class="note-image-container">
-                <img [src]="note.image" class="note-image">
-              </div>
-            }
-            <p class="note-content">{{ note.content }}</p>
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-icon-button color="primary" (click)="editNote(note)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" (click)="deleteNote(i)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </mat-card-actions>
-        </mat-card>
+            </mat-card-content>
+          </mat-card>
+        } @else {
+          <!-- Regular note card -->
+          <mat-card class="note-card">
+            <mat-card-header>
+              <mat-card-title>{{ note.title }}</mat-card-title>
+              <mat-card-subtitle>
+                <span class="note-date">{{ note.createdAt | date:'medium' }}</span>
+                <div class="note-categories">
+                  @if (note.categories && note.categories.length > 0) {
+                    @for (category of note.categories; track category) {
+                      <span class="note-category"
+                            [class.selected]="selectedCategories.includes(category)"
+                            (click)="filterByCategory(category); $event.stopPropagation()">
+                        {{ category }}
+                      </span>
+                    }
+                  } @else if (note.category) {
+                    <span class="note-category"
+                          [class.selected]="selectedCategories.includes(note.category)"
+                          (click)="filterByCategory(note.category); $event.stopPropagation()">
+                      {{ note.category }}
+                    </span>
+                  }
+                </div>
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              @if (note.images && note.images.length > 0) {
+                <div class="note-images-grid">
+                  @for (image of note.images; track $index) {
+                    <div class="note-image-container">
+                      <img [src]="image" class="note-image">
+                    </div>
+                  }
+                </div>
+              } @else if (note.image) {
+                <!-- Backward compatibility for single image -->
+                <div class="note-image-container">
+                  <img [src]="note.image" class="note-image">
+                </div>
+              }
+              <p class="note-content">{{ note.content }}</p>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-icon-button color="primary" (click)="editNote(note)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteNote(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
       }
     }
   </div>
