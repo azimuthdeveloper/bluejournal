@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { CreateNoteDialogComponent } from '../create-note-dialog/create-note-dialog.component';
+import { ImageViewerComponent } from '../image-viewer/image-viewer.component';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -41,7 +42,8 @@ interface Note {
     MatDividerModule,
     MatSelectModule,
     MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    ImageViewerComponent
   ],
   templateUrl: './notes.component.html',
   styleUrls: ['./notes.component.css']
@@ -465,5 +467,16 @@ export class NotesComponent implements OnInit, OnDestroy {
       // Trigger auto-save
       this.noteChanges.next({ ...this.editingNote } as Note);
     }
+  }
+
+  // Open image viewer dialog
+  openImageViewer(imageUrl: string): void {
+    this.dialog.open(ImageViewerComponent, {
+      width: '100%',
+      height: '90vh',
+      maxWidth: '100vw',
+      panelClass: 'image-viewer-dialog',
+      data: { imageUrl }
+    });
   }
 }

@@ -111,7 +111,7 @@
                   <div class="images-grid">
                     @for (image of editingNote.images; track $index; let i = $index) {
                       <div class="image-preview-container">
-                        <img [src]="image" class="image-preview">
+                        <img [src]="image" class="image-preview" (click)="openImageViewer(image)" role="button" aria-label="View full size image">
                         <button mat-icon-button color="warn" (click)="removeImage(i)" class="remove-image-btn">
                           <mat-icon>delete</mat-icon>
                         </button>
@@ -121,7 +121,7 @@
                 } @else if (editingNote.image) {
                   <!-- Backward compatibility for single image -->
                   <div class="image-preview-container">
-                    <img [src]="editingNote.image" class="image-preview">
+                    <img [src]="editingNote.image" class="image-preview" (click)="openImageViewer(editingNote.image)" role="button" aria-label="View full size image">
                     <button mat-icon-button color="warn" (click)="clearImages()" class="remove-image-btn">
                       <mat-icon>delete</mat-icon>
                     </button>
@@ -161,14 +161,14 @@
                 <div class="note-images-grid">
                   @for (image of note.images; track $index) {
                     <div class="note-image-container">
-                      <img [src]="image" class="note-image">
+                      <img [src]="image" class="note-image" (click)="openImageViewer(image)" role="button" aria-label="View full size image">
                     </div>
                   }
                 </div>
               } @else if (note.image) {
                 <!-- Backward compatibility for single image -->
                 <div class="note-image-container">
-                  <img [src]="note.image" class="note-image">
+                  <img [src]="note.image" class="note-image" (click)="openImageViewer(note.image)" role="button" aria-label="View full size image">
                 </div>
               }
               <p class="note-content">{{ note.content }}</p>

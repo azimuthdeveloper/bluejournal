@@ -1,0 +1,18 @@
+<div class="image-viewer-container">
+  <div class="image-viewer-header">
+    <button mat-icon-button (click)="resetZoom()" aria-label="Reset zoom">
+      <mat-icon>zoom_out_map</mat-icon>
+    </button>
+    <button mat-icon-button (click)="onClose()" aria-label="Close viewer">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="image-container" #imageContainer>
+    <img [src]="data.imageUrl" #image class="zoomable-image" alt="Full size image">
+  </div>
+
+  <div class="image-viewer-footer">
+    <span class="zoom-info">Pinch or use mouse wheel to zoom, drag to pan</span>
+  </div>
+</div>

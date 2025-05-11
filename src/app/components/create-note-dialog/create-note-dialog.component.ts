@@ -1,12 +1,13 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { ImageViewerComponent } from '../image-viewer/image-viewer.component';
 
 interface Note {
   id: number;
@@ -34,7 +35,8 @@ interface DialogData {
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatCardModule
+    MatCardModule,
+    ImageViewerComponent
   ],
   templateUrl: './create-note-dialog.component.html',
   styleUrls: ['./create-note-dialog.component.css']
@@ -45,7 +47,8 @@ export class CreateNoteDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<CreateNoteDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -188,5 +191,16 @@ export class CreateNoteDialogComponent implements OnInit {
     } else {
       this.dialogRef.close();
     }
+  }
+
+  // Open image viewer dialog
+  openImageViewer(imageUrl: string): void {
+    this.dialog.open(ImageViewerComponent, {
+      width: '100%',
+      height: '90vh',
+      maxWidth: '100vw',
+      panelClass: 'image-viewer-dialog',
+      data: { imageUrl }
+    });
   }
 }

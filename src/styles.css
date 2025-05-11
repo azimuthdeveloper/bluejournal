@@ -226,6 +226,26 @@ body {
   background-color: var(--card-background);
 }
 
+/* Image viewer dialog styles */
+.image-viewer-dialog {
+  padding: 0 !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.image-viewer-dialog .mat-mdc-dialog-container {
+  padding: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.image-viewer-dialog .mat-mdc-dialog-surface {
+  background-color: var(--card-background, #424242);
+  color: var(--text-color, rgba(255, 255, 255, 0.87));
+  border-radius: 8px;
+  overflow: hidden;
+}
+
 /* Global utility classes */
 .full-width {
   width: 100%;

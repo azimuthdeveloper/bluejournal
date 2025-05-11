@@ -37,7 +37,7 @@
       <div class="images-grid">
         @for (image of newNote.images; track $index; let i = $index) {
           <div class="image-preview-container">
-            <img [src]="image" class="image-preview">
+            <img [src]="image" class="image-preview" (click)="openImageViewer(image)" role="button" aria-label="View full size image">
             <button mat-icon-button color="warn" (click)="removeImage(i)" class="remove-image-btn">
               <mat-icon>delete</mat-icon>
             </button>

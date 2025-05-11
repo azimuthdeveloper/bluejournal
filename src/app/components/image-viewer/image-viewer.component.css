@@ -1,0 +1,70 @@
+.image-viewer-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: var(--card-background, #424242);
+  color: var(--text-color, rgba(255, 255, 255, 0.87));
+}
+
+.image-viewer-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.image-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  touch-action: none; /* Disable browser's default touch actions */
+  cursor: grab;
+}
+
+.image-container:active {
+  cursor: grabbing;
+}
+
+.zoomable-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform-origin: center;
+  transition: transform 0.1s ease-out;
+  user-select: none; /* Prevent text selection during drag */
+  -webkit-user-drag: none; /* Prevent image dragging */
+}
+
+.image-viewer-footer {
+  padding: 8px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--secondary-text-color, rgba(255, 255, 255, 0.6));
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Dark mode support */
+:host-context(.dark-theme) .image-viewer-container {
+  background-color: #212121;
+}
+
+:host-context(.dark-theme) .image-viewer-header,
+:host-context(.dark-theme) .image-viewer-footer {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Media query for mobile devices */
+@media (max-width: 600px) {
+  .image-viewer-header button {
+    margin-left: 8px;
+  }
+
+  .zoom-info {
+    font-size: 10px;
+  }
+}
