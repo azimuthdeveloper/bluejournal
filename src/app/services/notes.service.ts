@@ -28,22 +28,40 @@ export class NotesService {
   constructor() {
     console.log('NotesService constructor called');
 
-    // Initialize with a resolved promise for testing
-    this.initializationComplete = true;
-    this.initializationPromise = Promise.resolve();
-
-    // Load notes in memory
-    this.notes = [];
-    this.notesSubject.next(this.notes);
-
-    console.log('NotesService initialization complete');
+    // Initialize the service
+    this.initializationComplete = false;
+    this.initializationPromise = this.initialize();
   }
 
-  // // This method is kept for backward compatibility
-  // private async migrateNotes(): Promise<void> {
-  //   console.log('migrateNotes called - skipped in test environment');
-  //   return Promise.resolve();
-  // }
+  /**
+   * Initialize the service
+   * This includes migrating old notes and loading all notes
+   */
+  private async initialize(): Promise<void> {
+    // debugger;
+    try {
+      // Request persistent storage
+      await this.requestPersistentStorage();
+
+      // Migrate notes from old format if needed
+      await this.migrateNotes();
+
+      // Load all notes
+      this.loadAllNotes();
+
+      this.initializationComplete = true;
+      console.log('NotesService initialization complete');
+    } catch (error) {
+      console.error('Error during NotesService initialization:', error);
+      // Even if initialization fails, mark as complete to avoid blocking the app
+      this.initializationComplete = true;
+
+      // Fallback to empty notes array
+      this.notes = [];
+      this.notesSubject.next(this.notes);
+    }
+  }
+
 
   /**
    * Returns a promise that resolves when the service initialization is complete
@@ -88,6 +106,7 @@ export class NotesService {
    */
   private async migrateNotes(): Promise<void> {
     // Check if migration has already been completed
+    debugger;
     if (this.migrationComplete) {
       return;
     }
