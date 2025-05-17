@@ -124,8 +124,13 @@ export class NotesService {
    */
   private async migrateNotes(): Promise<void> {
     // Check if migration has already been completed
-    debugger;
+    // debugger;
     if (this.migrationComplete) {
+      return;
+    }
+
+    if (localStorage.getItem("bluejournal_migration_to_new_localstorage_complete") == "true") {
+      console.log("Migration to new localstorage already completed, wont do it again.");
       return;
     }
 
@@ -191,6 +196,7 @@ export class NotesService {
       this.sendMigrationCompletedEvent(noteIds.length);
 
       this.migrationComplete = true;
+      localStorage.setItem("bluejournal_migration_to_new_localstorage_complete", "true");
     } catch (error) {
       console.error('Error migrating notes:', error);
       // If migration fails, we'll try again next time
