@@ -39,6 +39,7 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'Blue Journal';
   isWarningPage = true; // Default to true to hide toolbar initially
   showMapTab = false; // Hide map tab by default
+  showBilliardRoomTab = false; // Hide billiard room tab by default
   commitHash: string = '';
 
   // Property to store the deferred prompt event
@@ -100,6 +101,24 @@ export class AppComponent implements OnInit, OnDestroy {
     const promptRejected = localStorage.getItem('bluejournal_prompt_rejected');
     if (promptRejected === 'true') {
       this.promptRejected = true;
+    }
+
+    // Load navigation options from localStorage
+    this.loadNavigationOptions();
+  }
+
+  // Load navigation options from localStorage
+  private loadNavigationOptions(): void {
+    // Load map visibility
+    const showMap = localStorage.getItem('bluejournal_show_map');
+    if (showMap === 'true') {
+      this.showMapTab = true;
+    }
+
+    // Load billiard room visibility
+    const showBilliardRoom = localStorage.getItem('bluejournal_show_billiard_room');
+    if (showBilliardRoom === 'true') {
+      this.showBilliardRoomTab = true;
     }
   }
 
@@ -182,6 +201,16 @@ export class AppComponent implements OnInit, OnDestroy {
   // Method to disable map tab
   disableMapTab(): void {
     this.showMapTab = false;
+  }
+
+  // Method to enable billiard room tab
+  enableBilliardRoomTab(): void {
+    this.showBilliardRoomTab = true;
+  }
+
+  // Method to disable billiard room tab
+  disableBilliardRoomTab(): void {
+    this.showBilliardRoomTab = false;
   }
 
   // Method to check if app can be installed

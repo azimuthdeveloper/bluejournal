@@ -28,6 +28,9 @@
     <button mat-stroked-button type="button" (click)="imageInput.click()" class="upload-btn">
       <mat-icon>image</mat-icon> Add Image
     </button>
+    <button mat-stroked-button type="button" class="paste-hint-btn" disabled>
+      <mat-icon>content_paste</mat-icon> Or paste image from clipboard (Ctrl+V)
+    </button>
 
     @if (newNote.images && newNote.images.length > 0) {
       <button mat-stroked-button color="warn" type="button" (click)="clearImages()" class="clear-btn">

@@ -15,17 +15,7 @@ import { CreateNoteDialogComponent } from '../create-note-dialog/create-note-dia
 import { ImageViewerComponent } from '../image-viewer/image-viewer.component';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-
-interface Note {
-  id: number;
-  title: string;
-  content: string;
-  categories?: string[]; // Optional array of categories
-  category?: string;     // Keep for backward compatibility
-  image?: string;        // Base64 encoded image data (for backward compatibility)
-  images?: string[];     // Array of Base64 encoded image data
-  createdAt: Date;
-}
+import { NotesService, Note } from '../../services/notes.service';
 
 @Component({
   selector: 'app-notes',
@@ -70,11 +60,18 @@ export class NotesComponent implements OnInit, OnDestroy {
   // Categories array
   categories: string[] = [];
 
-  constructor(private dialog: MatDialog, private snackBar: MatSnackBar) {}
+  constructor(
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private notesService: NotesService
+  ) {}
 
   ngOnInit(): void {
-    this.loadNotes();
-    this.loadCategories();
+    // Subscribe to notes from the service
+    this.notesService.getNotes().subscribe(notes => {
+      this.notes = notes;
+      this.loadCategories();
+    });
 
     // Set up debounce for auto-save
     this.noteChangeSubscription = this.noteChanges.pipe(
@@ -109,6 +106,62 @@ export class NotesComponent implements OnInit, OnDestroy {
     this.lastScrollTop = scrollTop;
   }
 
+  // Handle clipboard paste events for images
+  @HostListener('window:paste', ['$event'])
+  onPaste(event: ClipboardEvent) {
+    // Only process paste events when editing a note
+    if (!this.editingNote) {
+      return;
+    }
+
+    // Check if clipboard has items
+    if (event.clipboardData && event.clipboardData.items) {
+      const items = event.clipboardData.items;
+
+      // Look for image items
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          // Prevent the default paste behavior
+          event.preventDefault();
+
+          // Get the image as a file
+          const file = items[i].getAsFile();
+
+          if (file) {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+              const imageData = reader.result as string;
+
+              // Show a notification
+              this.snackBar.open('Image pasted from clipboard', 'Close', {
+                duration: 3000
+              });
+
+              // Optimize the image
+              this.optimizeImage(imageData, 1200, 200).then(optimizedImageData => {
+                // Initialize images array if it doesn't exist
+                if (!this.editingNote!.images) {
+                  this.editingNote!.images = [];
+                }
+                this.editingNote!.images.push(optimizedImageData);
+                // Keep single image for backward compatibility
+                this.editingNote!.image = optimizedImageData;
+                // Trigger auto-save
+                this.noteChanges.next({ ...this.editingNote } as Note);
+              });
+            };
+
+            reader.readAsDataURL(file);
+
+            // Only process the first image found
+            break;
+          }
+        }
+      }
+    }
+  }
+
   // Open create note dialog
   openCreateNoteDialog(): void {
     const dialogRef = this.dialog.open(CreateNoteDialogComponent, {
@@ -119,11 +172,9 @@ export class NotesComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Add the new note to the notes array
-        this.notes.unshift(result);
-        this.saveNotes();
-        // Refresh categories list to include only active categories
-        this.loadCategories();
+        // Add the new note using the service
+        this.notesService.addNote(result);
+        // Categories are refreshed via the subscription to notes
       }
     });
   }
@@ -185,37 +236,22 @@ export class NotesComponent implements OnInit, OnDestroy {
     return categories;
   }
 
+  // No longer needed as we're using the NotesService
   loadNotes(): void {
-    const savedNotes = localStorage.getItem('bluejournal_notes');
-    if (savedNotes) {
-      this.notes = JSON.parse(savedNotes).map((note: any) => {
-        // Handle backward compatibility with notes that have a single category
-        if (note.category && !note.categories) {
-          note.categories = note.category ? [note.category] : [];
-        }
-
-        // Handle backward compatibility with notes that have a single image
-        if (note.image && !note.images) {
-          note.images = note.image ? [note.image] : [];
-        }
-
-        return {
-          ...note,
-          createdAt: new Date(note.createdAt)
-        };
-      });
-    }
+    // This method is kept for backward compatibility but is no longer used
+    // Notes are loaded via subscription to notesService.getNotes()
   }
 
+  // No longer needed as we're using the NotesService
   saveNotes(): void {
-    localStorage.setItem('bluejournal_notes', JSON.stringify(this.notes));
+    // This method is kept for backward compatibility but is no longer used
+    // Notes are saved via notesService.addNote() and notesService.updateNote()
   }
 
   deleteNote(index: number): void {
-    this.notes.splice(index, 1);
-    this.saveNotes();
-    // Refresh categories list after deleting a note
-    this.loadCategories();
+    const noteId = this.notes[index].id;
+    this.notesService.deleteNote(noteId);
+    // Categories are refreshed via the subscription to notes
   }
 
   editNote(note: Note): void {
@@ -258,31 +294,20 @@ export class NotesComponent implements OnInit, OnDestroy {
 
   // Auto-save note when changes are detected
   private autoSaveNote(note: Note): void {
-    const index = this.notes.findIndex(n => n.id === note.id);
-    if (index !== -1) {
-      this.notes[index] = { ...note };
-      this.saveNotes();
-      // Refresh categories list after saving a note
-      this.loadCategories();
-    }
+    this.notesService.updateNote(note);
+    // Categories are refreshed via the subscription to notes
   }
 
   // Method to update the note when editing is complete
   private updateNoteWithNotification(note: Note): void {
-    const index = this.notes.findIndex(n => n.id === note.id);
-    if (index !== -1) {
-      this.notes[index] = { ...note };
-      this.saveNotes();
-      // Refresh categories list after saving a note
-      this.loadCategories();
+    this.notesService.updateNote(note);
 
-      // Show toast notification
-      this.snackBar.open('Note updated', 'Close', {
-        duration: 3000, // 3 seconds
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom'
-      });
-    }
+    // Show toast notification
+    this.snackBar.open('Note updated', 'Close', {
+      duration: 3000, // 3 seconds
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom'
+    });
   }
 
   // Method called when any note field changes

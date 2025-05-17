@@ -4,7 +4,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatRadioModule } from '@angular/material/radio';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatListModule } from '@angular/material/list';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AppComponent } from '../../app.component';
@@ -20,24 +21,16 @@ import { ThemeService } from '../../services/theme.service';
     MatButtonModule,
     MatIconModule,
     MatSlideToggleModule,
-    MatRadioModule
+    MatCheckboxModule,
+    MatListModule
   ],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent implements OnInit {
-  // Knowledge levels
-  knowledgeLevels = [
-    { id: 'nothing', label: 'I know nothing', enabled: true },
-    { id: 'little', label: 'I know a little', enabled: true },
-    { id: 'bit', label: 'I know a bit', enabled: false },
-    { id: 'bit-more', label: 'I know a bit more', enabled: false },
-    { id: 'lot', label: 'I know a lot', enabled: false }
-  ];
-  selectedKnowledgeLevel: string = 'nothing';
-
-  // Ads settings
-  showAds: boolean = true;
+  // Feature visibility settings
+  showBilliardRoom: boolean = false;
+  showMap: boolean = false;
 
   // Dark mode settings
   darkMode: boolean = false;
@@ -52,13 +45,6 @@ export class SettingsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Load ads preference from localStorage
-    const adsPreference = localStorage.getItem('bluejournal_show_ads');
-    if (adsPreference !== null) {
-      this.showAds = adsPreference === 'true';
-      this.updateAdsVisibility();
-    }
-
     // Initialize dark mode state
     this.darkMode = this.themeService.getCurrentTheme();
 
@@ -70,19 +56,20 @@ export class SettingsComponent implements OnInit {
     // Check if app can be installed
     this.canInstallApp = this.appComponent.canInstallApp();
 
-    // Load knowledge level from localStorage
-    const knowledgeLevel = localStorage.getItem('bluejournal_knowledge_level');
-    if (knowledgeLevel !== null) {
-      this.selectedKnowledgeLevel = knowledgeLevel;
-
-      // If the knowledge level is 'little', enable the map tab
-      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
-      if (knowledgeLevel === 'little') {
-        setTimeout(() => {
-          this.appComponent.enableMapTab();
-        });
-      }
+    // Load billiard room visibility from localStorage
+    const showBilliardRoom = localStorage.getItem('bluejournal_show_billiard_room');
+    if (showBilliardRoom !== null) {
+      this.showBilliardRoom = showBilliardRoom === 'true';
     }
+
+    // Load map visibility from localStorage
+    const showMap = localStorage.getItem('bluejournal_show_map');
+    if (showMap !== null) {
+      this.showMap = showMap === 'true';
+    }
+
+    // Apply settings to app component
+    this.updateNavigationOptions();
   }
 
   // Method to toggle dark mode
@@ -90,45 +77,38 @@ export class SettingsComponent implements OnInit {
     this.themeService.toggleDarkMode();
   }
 
-  // Method to handle knowledge level selection
-  selectKnowledgeLevel(levelId: string): void {
-    this.selectedKnowledgeLevel = levelId;
+  // Method to toggle billiard room visibility
+  toggleBilliardRoom(): void {
+    this.showBilliardRoom = !this.showBilliardRoom;
+    localStorage.setItem('bluejournal_show_billiard_room', this.showBilliardRoom.toString());
+    this.updateNavigationOptions();
+  }
 
-    // Save to localStorage
-    localStorage.setItem('bluejournal_knowledge_level', levelId);
+  // Method to toggle map visibility
+  toggleMap(): void {
+    this.showMap = !this.showMap;
+    localStorage.setItem('bluejournal_show_map', this.showMap.toString());
+    this.updateNavigationOptions();
+  }
 
-    if (levelId === 'little') {
-      // Enable map tab in app component
-      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
-      setTimeout(() => {
+  // Update navigation options in the app component
+  private updateNavigationOptions(): void {
+    // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+    // setTimeout(() => {
+      // Update map tab visibility
+      if (this.showMap) {
         this.appComponent.enableMapTab();
-      });
-    } else if (levelId === 'nothing') {
-      // Disable map tab in app component
-      setTimeout(() => {
-        this.appComponent.disableMapTab();
-      });
-    }
-  }
-
-
-  // Method to toggle ads visibility
-  toggleAds(): void {
-    this.showAds = !this.showAds;
-    localStorage.setItem('bluejournal_show_ads', this.showAds.toString());
-    this.updateAdsVisibility();
-  }
-
-  // Update ads visibility in the DOM
-  private updateAdsVisibility(): void {
-    const adsElements = document.querySelectorAll('.adsbygoogle');
-    adsElements.forEach(element => {
-      if (this.showAds) {
-        element.classList.remove('hidden');
       } else {
-        element.classList.add('hidden');
+        this.appComponent.disableMapTab();
       }
-    });
+
+      // Update billiard room tab visibility
+      if (this.showBilliardRoom) {
+        this.appComponent.enableBilliardRoomTab();
+      } else {
+        this.appComponent.disableBilliardRoomTab();
+      }
+    // });
   }
 
   // Method to show the install prompt

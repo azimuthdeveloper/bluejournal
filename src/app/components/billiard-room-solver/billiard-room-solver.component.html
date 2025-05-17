@@ -1,0 +1,52 @@
+<div class="billiard-room-container">
+  <h1 class="page-title">Billiard Room Solver</h1>
+  <p class="page-description">
+    Use this tool to solve the dartboard puzzle in the billiard room.
+    Tap numbers to add them to your calculation. Tap again to remove them.
+  </p>
+
+  <mat-card class="grid-card">
+    <mat-card-content>
+      <div class="grid-container">
+        <!-- Header row with operation labels -->
+        <div class="grid-header-row">
+          @for (operation of operations; track operation) {
+            <div class="grid-cell grid-header-cell operation-{{ operation }}">
+              <!-- No operation text as requested -->
+            </div>
+          }
+        </div>
+
+        <!-- Grid rows -->
+        @for (row of grid; track row[0].value) {
+          <div class="grid-row">
+            <!-- Operation cells -->
+            @for (cell of row; track cell.operation) {
+              <div
+                class="grid-cell operation-cell operation-{{ cell.operation }}"
+                [class.selected]="cell.selected"
+                (click)="toggleCell(cell)">
+                {{ cell.value }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Reset button -->
+  <div class="actions-container">
+    <button mat-raised-button color="warn" (click)="resetGrid()">
+      <mat-icon>refresh</mat-icon> Reset
+    </button>
+  </div>
+
+  <!-- Floating result bar -->
+  <div class="result-bar" [class.visible]="isResultBarVisible">
+    <div class="result-content">
+      <span class="result-label">Result:</span>
+      <span class="result-value">{{ result }}</span>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -7,18 +7,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { ImageViewerComponent } from '../image-viewer/image-viewer.component';
-
-interface Note {
-  id: number;
-  title: string;
-  content: string;
-  categories?: string[];
-  category?: string;     // Keep for backward compatibility
-  image?: string;        // Base64 encoded image data (for backward compatibility)
-  images?: string[];     // Array of Base64 encoded image data
-  createdAt: Date;
-}
+import { Note } from '../../services/notes.service';
 
 interface DialogData {
   categories: string[];
@@ -36,6 +27,7 @@ interface DialogData {
     MatButtonModule,
     MatIconModule,
     MatCardModule,
+    MatSnackBarModule,
     ImageViewerComponent
   ],
   templateUrl: './create-note-dialog.component.html',
@@ -48,11 +40,61 @@ export class CreateNoteDialogComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<CreateNoteDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     // Initialize component
+  }
+
+  // Handle clipboard paste events for images
+  @HostListener('window:paste', ['$event'])
+  onPaste(event: ClipboardEvent) {
+    // Check if clipboard has items
+    if (event.clipboardData && event.clipboardData.items) {
+      const items = event.clipboardData.items;
+
+      // Look for image items
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          // Prevent the default paste behavior
+          event.preventDefault();
+
+          // Get the image as a file
+          const file = items[i].getAsFile();
+
+          if (file) {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+              const imageData = reader.result as string;
+
+              // Show a notification
+              this.snackBar.open('Image pasted from clipboard', 'Close', {
+                duration: 3000
+              });
+
+              // Optimize the image
+              this.optimizeImage(imageData, 1200, 200).then(optimizedImageData => {
+                // Initialize images array if it doesn't exist
+                if (!this.newNote.images) {
+                  this.newNote.images = [];
+                }
+                this.newNote.images.push(optimizedImageData);
+                // Keep single image for backward compatibility
+                this.newNote.image = optimizedImageData;
+              });
+            };
+
+            reader.readAsDataURL(file);
+
+            // Only process the first image found
+            break;
+          }
+        }
+      }
+    }
   }
 
   createEmptyNote(): Note {

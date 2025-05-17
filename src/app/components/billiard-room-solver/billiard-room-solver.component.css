@@ -1,0 +1,189 @@
+.billiard-room-container {
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  padding-bottom: 80px; /* Space for the floating result bar */
+}
+
+.page-title {
+  margin-bottom: 8px;
+  color: #1976d2;
+}
+
+.page-description {
+  margin-bottom: 24px;
+  color: #666;
+}
+
+.grid-card {
+  margin-bottom: 24px;
+  overflow: auto;
+}
+
+.grid-container {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.grid-header-row, .grid-row {
+  display: table-row;
+}
+
+.grid-cell {
+  display: table-cell;
+  padding: 12px;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid #e0e0e0;
+}
+
+.grid-header-cell {
+  font-weight: bold;
+  background-color: #f5f5f5;
+}
+
+/* Removed number column as it was superfluous
+.number-column {
+  background-color: #f0f0f0;
+  font-weight: bold;
+  width: 80px;
+}
+*/
+
+.operation-cell {
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+/* Operation-specific hover effects */
+.operation-addition:hover {
+  background-color: #009999; /* Slightly lighter teal */
+  color: white;
+}
+
+.operation-subtraction:hover {
+  background-color: #ffff66; /* Slightly lighter yellow */
+  color: black;
+}
+
+.operation-multiplication:hover {
+  background-color: #ffb3d9; /* Slightly lighter pink */
+  color: black;
+}
+
+.operation-division:hover {
+  background-color: #9933cc; /* Slightly lighter purple */
+  color: white;
+}
+
+.operation-cell.selected {
+  font-weight: bold;
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Operation-specific colors */
+.operation-addition,
+.grid-header-cell.operation-addition {
+  background-color: teal;
+  color: white;
+}
+
+.operation-subtraction,
+.grid-header-cell.operation-subtraction {
+  background-color: yellow;
+  color: black;
+}
+
+.operation-multiplication,
+.grid-header-cell.operation-multiplication {
+  background-color: pink;
+  color: black;
+}
+
+.operation-division,
+.grid-header-cell.operation-division {
+  background-color: purple;
+  color: white;
+}
+
+/* Selected state for each operation type */
+.operation-addition.selected {
+  background-color: #006666; /* Darker teal */
+  color: white;
+}
+
+.operation-subtraction.selected {
+  background-color: #e6e600; /* Darker yellow */
+  color: black;
+}
+
+.operation-multiplication.selected {
+  background-color: #ff99cc; /* Darker pink */
+  color: black;
+}
+
+.operation-division.selected {
+  background-color: #660066; /* Darker purple */
+  color: white;
+}
+
+.actions-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
+/* Floating result bar */
+.result-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #1976d2;
+  color: white;
+  padding: 12px 16px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transition: transform 0.3s, opacity 0.3s;
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.result-bar.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.result-content {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.result-label {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.result-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .grid-cell {
+    padding: 8px 4px;
+    font-size: 0.9rem;
+  }
+
+  .number-column {
+    width: 60px;
+  }
+}

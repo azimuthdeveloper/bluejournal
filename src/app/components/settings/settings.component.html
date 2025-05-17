@@ -4,34 +4,45 @@
       <mat-card-title>Settings</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <!-- Knowledge Levels Section -->
+      <!-- Features Section -->
       <div class="settings-section">
-        <h3>Knowledge Level</h3>
+        <h3>Features</h3>
         <p class="settings-description">
-          Select your knowledge level about Blue Prince to customize your experience.
-          Higher knowledge levels will unlock more features.
+          Enable or disable features to customize your experience.
         </p>
 
-        <div class="knowledge-levels">
-          <mat-radio-group [(ngModel)]="selectedKnowledgeLevel" (change)="selectKnowledgeLevel(selectedKnowledgeLevel)">
-            <div *ngFor="let level of knowledgeLevels" class="knowledge-level">
-              <mat-radio-button
-                [value]="level.id"
-                [disabled]="!level.enabled"
+        <mat-list>
+          <!-- Billiard Room Puzzle -->
+          <mat-list-item (click)="toggleBilliardRoom()">
+            <div class="feature-list-item">
+              <div class="feature-content">
+                <h4>Billiard Room Puzzle</h4>
+                <p>Show billiard room navigation option in the top app bar</p>
+              </div>
+              <mat-checkbox
+                [(ngModel)]="showBilliardRoom"
                 color="primary">
-                {{ level.label }}
-              </mat-radio-button>
+              </mat-checkbox>
             </div>
-          </mat-radio-group>
-        </div>
+          </mat-list-item>
 
-        <div class="settings-info">
-          <mat-icon>info</mat-icon>
-          <p>
-            Only the first two knowledge levels are currently available.
-            More levels will be unlocked in future updates.
-          </p>
-        </div>
+          <mat-divider></mat-divider>
+
+          <!-- Crossword Puzzle -->
+          <mat-list-item (click)="toggleMap()">
+            <div class="feature-list-item">
+              <div class="feature-content">
+<!--                <h4>Crossword Puzzle</h4>-->
+                <p>Show the "Map" option in the top app bar</p>
+                <img src="assets/crossword.jpg" alt="Crossword puzzle" class="feature-image"> <p>.... get it? IYKYK.</p>
+              </div>
+              <mat-checkbox
+                [(ngModel)]="showMap"
+                color="primary">
+              </mat-checkbox>
+            </div>
+          </mat-list-item>
+        </mat-list>
       </div>
 
       <!-- Appearance Settings Section -->
@@ -51,22 +62,6 @@
       </div>
 
 
-      <!-- Ads Settings Section -->
-      <div class="settings-section">
-        <h3>Advertisement Settings</h3>
-        <div class="ads-toggle-container">
-          <mat-slide-toggle
-            [(ngModel)]="showAds"
-            (change)="toggleAds()"
-            color="primary">
-            Show advertisements
-          </mat-slide-toggle>
-          <p class="settings-description">
-            Toggle this setting to show or hide advertisements throughout the app.
-            Ads helps support the development of Blue Journal.
-          </p>
-        </div>
-      </div>
 
       <!-- App Installation Section -->
       <div class="settings-section" *ngIf="canInstallApp">

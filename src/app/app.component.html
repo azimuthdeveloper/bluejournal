@@ -7,6 +7,7 @@
       <a mat-button routerLink="/notes" routerLinkActive="active">Notes</a>
       <!-- Map tab shown only when enabled -->
       <a mat-button *ngIf="showMapTab" routerLink="/map" routerLinkActive="active">Map</a>
+      <a mat-button *ngIf="showBilliardRoomTab" routerLink="/billiard-room-solver" routerLinkActive="active">Billiard Room</a>
     </nav>
     <button mat-icon-button (click)="openSettings()">
       <mat-icon>settings</mat-icon>

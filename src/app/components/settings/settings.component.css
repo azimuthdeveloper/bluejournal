@@ -14,20 +14,52 @@
   line-height: 1.5;
 }
 
-.knowledge-levels {
+/* Feature list styles */
+.feature-list-item {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.knowledge-level {
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
   padding: 8px 0;
 }
 
-.knowledge-level mat-radio-button {
-  width: 100%;
+.feature-content {
+  flex: 1;
+  padding-right: 16px;
+  min-width: 0; /* Allows content to shrink below its minimum content size */
+}
+
+.feature-content h4 {
+  margin: 0 0 8px 0;
   font-size: 16px;
+  font-weight: 500;
+  word-wrap: break-word; /* Ensures text wraps properly */
+}
+
+.feature-content p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: var(--secondary-text-color);
+  word-wrap: break-word; /* Ensures text wraps properly */
+}
+
+.feature-image {
+  max-height: 120px;
+  max-width: 100%; /* Ensures image doesn't overflow container */
+  height: auto; /* Maintains aspect ratio */
+  margin-top: 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Override mat-list-item styles for better spacing */
+::ng-deep .mat-mdc-list-item {
+  height: auto !important;
+  padding: 16px 0 !important;
+}
+
+::ng-deep .mdc-list-item__content {
+  width: 100%;
 }
 
 .settings-info {
@@ -124,5 +156,34 @@
 @media (max-width: 600px) {
   .settings-container {
     padding: 8px;
+  }
+
+  /* Improve layout on small screens */
+  .feature-list-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .feature-content {
+    padding-right: 0;
+    margin-bottom: 12px;
+  }
+
+  /* Center the checkbox */
+  mat-checkbox {
+    align-self: flex-start;
+  }
+
+  /* Make list items more tappable */
+  ::ng-deep .mat-mdc-list-item {
+    padding: 16px 8px !important;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+
+  /* Reduce image size on small screens */
+  .feature-image {
+    max-height: 100px;
   }
 }
