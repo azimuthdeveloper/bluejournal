@@ -1,6 +1,19 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
+// Define the global gtag function
+declare global {
+  interface Window {
+    gtag: (
+      command: string,
+      action: string,
+      params?: {
+        [key: string]: any;
+      }
+    ) => void;
+  }
+}
+
 export interface Note {
   id: number;
   title: string;
@@ -24,6 +37,7 @@ export class NotesService {
   private migrationComplete = false;
   private initializationComplete = false;
   private initializationPromise: Promise<void>;
+  private isPersistentStorageGranted = false;
 
   constructor() {
     console.log('NotesService constructor called');
@@ -84,6 +98,7 @@ export class NotesService {
     // Check if localStorage is available first
     if (!this.isLocalStorageAvailable()) {
       console.warn('localStorage is not available, skipping persistent storage request');
+      this.isPersistentStorageGranted = false;
       return;
     }
 
@@ -91,12 +106,15 @@ export class NotesService {
     if (navigator.storage && navigator.storage.persist) {
       try {
         const isPersisted = await navigator.storage.persist();
+        this.isPersistentStorageGranted = isPersisted;
         console.log(`Persistent storage ${isPersisted ? 'granted' : 'denied'}`);
       } catch (error) {
         console.error('Error requesting persistent storage:', error);
+        this.isPersistentStorageGranted = false;
       }
     } else {
       console.warn('Persistent storage API not supported in this browser');
+      this.isPersistentStorageGranted = false;
     }
   }
 
@@ -168,6 +186,10 @@ export class NotesService {
       // localStorage.removeItem(this.OLD_NOTES_KEY);
 
       console.log(`Migrated ${oldNotes.length} notes to new storage format`);
+
+      // Send Google Analytics event for successful migration
+      this.sendMigrationCompletedEvent(noteIds.length);
+
       this.migrationComplete = true;
     } catch (error) {
       console.error('Error migrating notes:', error);
@@ -238,6 +260,63 @@ export class NotesService {
   }
 
   /**
+   * Send Google Analytics event for migration completed
+   */
+  private sendMigrationCompletedEvent(noteCount: number): void {
+    try {
+      // Calculate the total size of the data store
+      const dataSizeKB = this.calculateDataStoreSize();
+
+      // Send the event to Google Analytics
+      if (window.gtag) {
+        window.gtag('event', 'migration_completed', {
+          'note_count': noteCount,
+          'data_size_kb': dataSizeKB,
+          'persistent_storage_granted': this.isPersistentStorageGranted
+        });
+        console.log('Sent migration_completed event to Google Analytics', {
+          noteCount,
+          dataSizeKB,
+          persistentStorageGranted: this.isPersistentStorageGranted
+        });
+      } else {
+        console.warn('Google Analytics not available, could not send migration_completed event');
+      }
+    } catch (error) {
+      console.error('Error sending migration_completed event to Google Analytics:', error);
+    }
+  }
+
+  /**
+   * Calculate the total size of the data store in KB
+   */
+  private calculateDataStoreSize(): number {
+    if (!this.isLocalStorageAvailable()) {
+      return 0;
+    }
+
+    let totalSize = 0;
+
+    // Calculate size of note IDs
+    const noteIdsJson = localStorage.getItem(this.NOTE_IDS_KEY);
+    if (noteIdsJson) {
+      totalSize += noteIdsJson.length * 2; // Each character is 2 bytes in UTF-16
+    }
+
+    // Calculate size of individual notes
+    const noteIds: number[] = noteIdsJson ? JSON.parse(noteIdsJson) : [];
+    for (const id of noteIds) {
+      const noteJson = localStorage.getItem(`${this.NOTE_PREFIX}${id}`);
+      if (noteJson) {
+        totalSize += noteJson.length * 2; // Each character is 2 bytes in UTF-16
+      }
+    }
+
+    // Convert from bytes to KB
+    return Math.round(totalSize / 1024);
+  }
+
+  /**
    * Fallback method to load notes from old format if new format fails
    */
   private loadFromOldFormat(): void {
@@ -304,7 +383,70 @@ export class NotesService {
     // Save note to storage
     this.saveNote(noteCopy);
 
+    // Send Google Analytics event
+    this.sendNoteCreatedEvent(noteCopy);
+
     console.log('After addNote, notes array:', JSON.stringify(this.notes));
+  }
+
+  /**
+   * Send Google Analytics event for note created
+   */
+  private sendNoteCreatedEvent(note: Note): void {
+    try {
+      // Send the event to Google Analytics
+      if (window.gtag) {
+        window.gtag('event', 'note_created', {
+          'has_image': note.images && note.images.length > 0,
+          'has_categories': note.categories && note.categories.length > 0,
+          'content_length': note.content.length
+        });
+        console.log('Sent note_created event to Google Analytics');
+      } else {
+        console.warn('Google Analytics not available, could not send note_created event');
+      }
+    } catch (error) {
+      console.error('Error sending note_created event to Google Analytics:', error);
+    }
+  }
+
+  /**
+   * Send Google Analytics event for image attached
+   */
+  public sendImageAttachedEvent(imageSize: number): void {
+    try {
+      // Send the event to Google Analytics
+      if (window.gtag) {
+        window.gtag('event', 'image_attached', {
+          'image_size_kb': Math.round(imageSize / 1024)
+        });
+        console.log('Sent image_attached event to Google Analytics');
+      } else {
+        console.warn('Google Analytics not available, could not send image_attached event');
+      }
+    } catch (error) {
+      console.error('Error sending image_attached event to Google Analytics:', error);
+    }
+  }
+
+  /**
+   * Send Google Analytics event for letter set on map
+   */
+  public sendLetterSetOnMapEvent(letter: string, roomId: number): void {
+    try {
+      // Send the event to Google Analytics
+      if (window.gtag) {
+        window.gtag('event', 'letter_set_on_map', {
+          'letter': letter,
+          'room_id': roomId
+        });
+        console.log('Sent letter_set_on_map event to Google Analytics');
+      } else {
+        console.warn('Google Analytics not available, could not send letter_set_on_map event');
+      }
+    } catch (error) {
+      console.error('Error sending letter_set_on_map event to Google Analytics:', error);
+    }
   }
 
   /**

@@ -149,6 +149,11 @@ export class NotesComponent implements OnInit, OnDestroy {
                 this.editingNote!.image = optimizedImageData;
                 // Trigger auto-save
                 this.noteChanges.next({ ...this.editingNote } as Note);
+
+                // Send Google Analytics event
+                // Calculate image size in bytes (base64 string length * 0.75)
+                const imageSize = (optimizedImageData.length - optimizedImageData.indexOf(',') - 1) * 0.75;
+                this.notesService.sendImageAttachedEvent(imageSize);
               });
             };
 
@@ -410,6 +415,11 @@ export class NotesComponent implements OnInit, OnDestroy {
           this.editingNote!.image = optimizedImageData;
           // Trigger auto-save
           this.noteChanges.next({ ...this.editingNote } as Note);
+
+          // Send Google Analytics event
+          // Calculate image size in bytes (base64 string length * 0.75)
+          const imageSize = (optimizedImageData.length - optimizedImageData.indexOf(',') - 1) * 0.75;
+          this.notesService.sendImageAttachedEvent(imageSize);
         });
       };
 

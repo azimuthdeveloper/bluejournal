@@ -6,6 +6,7 @@ import { RoomDetailsComponent } from '../room-details/room-details.component';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { NotesService } from '../../services/notes.service';
 
 interface Room {
   id: number;
@@ -37,7 +38,7 @@ export class MapComponent implements OnInit {
   rowNumbers: number[] = [];
   colNumbers = Array.from({ length: this.cols }, (_, i) => i + 1);
 
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog, private notesService: NotesService) {}
 
   ngOnInit(): void {
     // Load rooms from localStorage or initialize if not exists
@@ -87,6 +88,9 @@ export class MapComponent implements OnInit {
   }
 
   openRoomDetails(room: Room): void {
+    // Store the original letter for comparison
+    const originalLetter = room.letter;
+
     const dialogRef = this.dialog.open(RoomDetailsComponent, {
       width: '400px',
       data: { room: { ...room } }
@@ -97,6 +101,12 @@ export class MapComponent implements OnInit {
         // Update room details
         const index = this.rooms.findIndex(r => r.id === result.id);
         if (index !== -1) {
+          // Check if letter has changed
+          if (result.letter !== originalLetter) {
+            // Send Google Analytics event for letter set on map
+            this.notesService.sendLetterSetOnMapEvent(result.letter, result.id);
+          }
+
           this.rooms[index] = result;
           this.saveRooms();
         }
