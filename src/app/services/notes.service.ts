@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { IndexedDBService } from './indexeddb.service';
+import { MigrationService, MigrationStatus } from './migration.service';
 
 // Define the global gtag function
 declare global {
@@ -38,8 +40,12 @@ export class NotesService {
   private initializationComplete = false;
   private initializationPromise: Promise<void>;
   private isPersistentStorageGranted = false;
+  private indexedDBMigrationComplete = false;
 
-  constructor() {
+  constructor(
+    private indexedDBService: IndexedDBService,
+    private migrationService: MigrationService
+  ) {
     console.log('NotesService constructor called');
 
     // Initialize the service
@@ -57,10 +63,29 @@ export class NotesService {
       // Request persistent storage
       await this.requestPersistentStorage();
 
-      // Migrate notes from old format if needed
-      await this.migrateNotes();
+      // Wait for migration service to initialize
+      await this.migrationService.waitForInitialization();
 
-      // Load all notes
+      // Check if IndexedDB migration is complete
+      const migrationStatus = await new Promise<MigrationStatus>(resolve => {
+        const subscription = this.migrationService.getMigrationStatus().subscribe(status => {
+          subscription.unsubscribe();
+          resolve(status);
+        });
+      });
+
+      this.indexedDBMigrationComplete = migrationStatus === MigrationStatus.COMPLETED;
+      console.log('IndexedDB migration status:', migrationStatus, 'Complete:', this.indexedDBMigrationComplete);
+
+      // If IndexedDB migration is complete, wait for IndexedDB service to initialize
+      if (this.indexedDBMigrationComplete) {
+        await this.indexedDBService.waitForInitialization();
+      } else {
+        // Migrate notes from old format if needed (localStorage migration)
+        await this.migrateNotes();
+      }
+
+      // Load all notes (from IndexedDB if migration is complete, otherwise from localStorage)
       this.loadAllNotes();
 
       this.initializationComplete = true;
@@ -207,8 +232,25 @@ export class NotesService {
   /**
    * Load all notes from storage
    */
-  private loadAllNotes(): void {
+  private async loadAllNotes(): Promise<void> {
     try {
+      // If IndexedDB migration is complete, load from IndexedDB
+      if (this.indexedDBMigrationComplete) {
+        console.log('Loading notes from IndexedDB');
+
+        // Subscribe to notes from IndexedDB service
+        const subscription = this.indexedDBService.getNotes().subscribe(notes => {
+          this.notes = notes;
+          this.notesSubject.next(this.notes);
+          subscription.unsubscribe();
+        });
+
+        return;
+      }
+
+      // Otherwise, load from localStorage
+      console.log('Loading notes from localStorage');
+
       // Check if localStorage is available
       if (!this.isLocalStorageAvailable()) {
         console.warn('localStorage is not available, using in-memory storage only');
@@ -371,7 +413,7 @@ export class NotesService {
   /**
    * Add a new note
    */
-  addNote(note: Note): void {
+  async addNote(note: Note): Promise<void> {
     console.log('addNote called with:', JSON.stringify(note));
 
     // Ensure note has an ID
@@ -382,12 +424,37 @@ export class NotesService {
     // Create a deep copy of the note to avoid modifying the original
     const noteCopy = JSON.parse(JSON.stringify(note));
 
-    // Add note to memory
-    this.notes.unshift(noteCopy);
-    this.notesSubject.next(this.notes);
+    // Ensure createdAt is a Date object
+    if (!(noteCopy.createdAt instanceof Date)) {
+      noteCopy.createdAt = new Date(noteCopy.createdAt);
+    }
 
-    // Save note to storage
-    this.saveNote(noteCopy);
+    // If IndexedDB migration is complete, save to IndexedDB
+    if (this.indexedDBMigrationComplete) {
+      console.log('Saving note to IndexedDB');
+      try {
+        // Add note to IndexedDB
+        await this.indexedDBService.addNote(noteCopy);
+
+        // Note will be added to memory via the subscription to IndexedDB service
+      } catch (error) {
+        console.error('Error adding note to IndexedDB:', error);
+
+        // Fallback to in-memory only if IndexedDB fails
+        this.notes.unshift(noteCopy);
+        this.notesSubject.next(this.notes);
+      }
+    } else {
+      // Otherwise, save to localStorage
+      console.log('Saving note to localStorage');
+
+      // Add note to memory
+      this.notes.unshift(noteCopy);
+      this.notesSubject.next(this.notes);
+
+      // Save note to localStorage
+      this.saveNote(noteCopy);
+    }
 
     // Send Google Analytics event
     this.sendNoteCreatedEvent(noteCopy);
@@ -458,7 +525,7 @@ export class NotesService {
   /**
    * Update an existing note
    */
-  updateNote(note: Note): void {
+  async updateNote(note: Note): Promise<void> {
     console.log('updateNote called with:', JSON.stringify(note));
 
     const index = this.notes.findIndex(n => n.id === note.id);
@@ -468,14 +535,39 @@ export class NotesService {
       // Create a deep copy of the note to avoid modifying the original
       const noteCopy = JSON.parse(JSON.stringify(note));
 
-      // Update the note in the array
-      this.notes[index] = noteCopy;
+      // Ensure createdAt is a Date object
+      if (!(noteCopy.createdAt instanceof Date)) {
+        noteCopy.createdAt = new Date(noteCopy.createdAt);
+      }
 
-      // Notify subscribers
-      this.notesSubject.next(this.notes);
+      // If IndexedDB migration is complete, update in IndexedDB
+      if (this.indexedDBMigrationComplete) {
+        console.log('Updating note in IndexedDB');
+        try {
+          // Update note in IndexedDB
+          await this.indexedDBService.updateNote(noteCopy);
 
-      // Save to storage
-      this.saveNote(noteCopy);
+          // Note will be updated in memory via the subscription to IndexedDB service
+        } catch (error) {
+          console.error('Error updating note in IndexedDB:', error);
+
+          // Fallback to in-memory update if IndexedDB fails
+          this.notes[index] = noteCopy;
+          this.notesSubject.next(this.notes);
+        }
+      } else {
+        // Otherwise, update in localStorage
+        console.log('Updating note in localStorage');
+
+        // Update the note in the array
+        this.notes[index] = noteCopy;
+
+        // Notify subscribers
+        this.notesSubject.next(this.notes);
+
+        // Save to localStorage
+        this.saveNote(noteCopy);
+      }
 
       console.log('After updateNote, notes array:', JSON.stringify(this.notes));
     } else {
@@ -486,32 +578,52 @@ export class NotesService {
   /**
    * Delete a note
    */
-  deleteNote(id: number): void {
+  async deleteNote(id: number): Promise<void> {
     const index = this.notes.findIndex(note => note.id === id);
     if (index !== -1) {
-      // Remove from in-memory array
-      this.notes.splice(index, 1);
-      this.notesSubject.next(this.notes);
-
-      // Check if localStorage is available before trying to remove from storage
-      if (this.isLocalStorageAvailable()) {
+      // If IndexedDB migration is complete, delete from IndexedDB
+      if (this.indexedDBMigrationComplete) {
+        console.log('Deleting note from IndexedDB');
         try {
-          // Remove from storage
-          localStorage.removeItem(`${this.NOTE_PREFIX}${id}`);
+          // Delete note from IndexedDB
+          await this.indexedDBService.deleteNote(id);
 
-          // Update note IDs list
-          const noteIdsJson = localStorage.getItem(this.NOTE_IDS_KEY);
-          if (noteIdsJson) {
-            const noteIds: number[] = JSON.parse(noteIdsJson);
-            const updatedIds = noteIds.filter(noteId => noteId !== id);
-            localStorage.setItem(this.NOTE_IDS_KEY, JSON.stringify(updatedIds));
-          }
+          // Note will be removed from memory via the subscription to IndexedDB service
         } catch (error) {
-          console.error('Error deleting note from localStorage:', error);
-          // Continue with in-memory deletion only
+          console.error('Error deleting note from IndexedDB:', error);
+
+          // Fallback to in-memory deletion if IndexedDB fails
+          this.notes.splice(index, 1);
+          this.notesSubject.next(this.notes);
         }
       } else {
-        console.warn('localStorage is not available, note will only be removed from memory');
+        // Otherwise, delete from localStorage
+        console.log('Deleting note from localStorage');
+
+        // Remove from in-memory array
+        this.notes.splice(index, 1);
+        this.notesSubject.next(this.notes);
+
+        // Check if localStorage is available before trying to remove from storage
+        if (this.isLocalStorageAvailable()) {
+          try {
+            // Remove from storage
+            localStorage.removeItem(`${this.NOTE_PREFIX}${id}`);
+
+            // Update note IDs list
+            const noteIdsJson = localStorage.getItem(this.NOTE_IDS_KEY);
+            if (noteIdsJson) {
+              const noteIds: number[] = JSON.parse(noteIdsJson);
+              const updatedIds = noteIds.filter(noteId => noteId !== id);
+              localStorage.setItem(this.NOTE_IDS_KEY, JSON.stringify(updatedIds));
+            }
+          } catch (error) {
+            console.error('Error deleting note from localStorage:', error);
+            // Continue with in-memory deletion only
+          }
+        } else {
+          console.warn('localStorage is not available, note will only be removed from memory');
+        }
       }
     }
   }
@@ -519,7 +631,19 @@ export class NotesService {
   /**
    * Save a note to storage
    */
-  private saveNote(note: Note): void {
+  private async saveNote(note: Note): Promise<void> {
+    // If IndexedDB migration is complete, use IndexedDB instead
+    if (this.indexedDBMigrationComplete) {
+      console.log('Using IndexedDB for storage, saveNote should not be called directly');
+      try {
+        // Save to IndexedDB as a fallback
+        await this.indexedDBService.updateNote(note);
+      } catch (error) {
+        console.error('Error saving note to IndexedDB:', error);
+      }
+      return;
+    }
+
     // Check if localStorage is available
     if (!this.isLocalStorageAvailable()) {
       console.warn('localStorage is not available, note will only be stored in memory');
