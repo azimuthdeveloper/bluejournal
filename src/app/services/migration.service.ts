@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, forwardRef } from '@angular/core';
 import {BehaviorSubject, firstValueFrom, Observable} from 'rxjs';
 import { NotesService } from './notes.service';
 import { IndexedDBService } from './indexeddb.service';
@@ -34,7 +34,7 @@ export class MigrationService {
   private initializationPromise: Promise<void>;
 
   constructor(
-    private notesService: NotesService,
+    @Inject(forwardRef(() => NotesService)) private notesService: NotesService,
     private indexedDBService: IndexedDBService
   ) {
     console.log('MigrationService constructor called');
