@@ -284,8 +284,11 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     // Handle dialog close
-    dialogRef.afterClosed().subscribe(result => {
+    // Store the subscription to avoid memory leaks
+    const subscription = dialogRef.afterClosed().subscribe(result => {
       console.log('Migration dialog closed with result:', result);
+      // Unsubscribe when done
+      subscription.unsubscribe();
     });
   }
 }
