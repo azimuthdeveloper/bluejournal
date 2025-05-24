@@ -254,7 +254,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
         // Get note count
         const noteCount = await new Promise<number>(resolve => {
-          const subscription = this.notesService.getNotes().subscribe(notes => {
+          // Initialize subscription variable first
+          let subscription: Subscription;
+          // Then assign the subscription
+          subscription = this.notesService.getNotes().subscribe(notes => {
             subscription.unsubscribe();
             resolve(notes.length);
           });
