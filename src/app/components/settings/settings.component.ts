@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,10 +6,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AppComponent } from '../../app.component';
 import { ThemeService } from '../../services/theme.service';
+import { MigrationService, MigrationStatus } from '../../services/migration.service';
 
 @Component({
   selector: 'app-settings',
@@ -22,12 +25,13 @@ import { ThemeService } from '../../services/theme.service';
     MatIconModule,
     MatSlideToggleModule,
     MatCheckboxModule,
-    MatListModule
+    MatListModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
   // Feature visibility settings
   showBilliardRoom: boolean = false;
   showMap: boolean = false;
@@ -38,10 +42,19 @@ export class SettingsComponent implements OnInit {
   // App installation
   canInstallApp: boolean = false;
 
+  // Data migration
+  migrationStatus: MigrationStatus = MigrationStatus.NOT_STARTED;
+  migrationInProgress: boolean = false;
+  migrationComplete: boolean = false;
+  migrationFailed: boolean = false;
+  migrationSkipped: boolean = false;
+  private migrationSubscription: Subscription | null = null;
+
   constructor(
     private router: Router,
     private appComponent: AppComponent,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private migrationService: MigrationService
   ) {}
 
   ngOnInit(): void {
@@ -70,6 +83,22 @@ export class SettingsComponent implements OnInit {
 
     // Apply settings to app component
     this.updateNavigationOptions();
+
+    // Subscribe to migration status changes
+    this.migrationSubscription = this.migrationService.getMigrationStatus().subscribe(status => {
+      this.migrationStatus = status;
+      this.migrationInProgress = status === MigrationStatus.IN_PROGRESS;
+      this.migrationComplete = status === MigrationStatus.COMPLETED;
+      this.migrationFailed = status === MigrationStatus.FAILED;
+      this.migrationSkipped = status === MigrationStatus.SKIPPED;
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Unsubscribe to prevent memory leaks
+    if (this.migrationSubscription) {
+      this.migrationSubscription.unsubscribe();
+    }
   }
 
   // Method to toggle dark mode
@@ -114,5 +143,28 @@ export class SettingsComponent implements OnInit {
   // Method to show the install prompt
   installApp(): void {
     this.appComponent.manuallyShowInstallPrompt();
+  }
+
+  // Method to start the data migration
+  async startMigration(): Promise<void> {
+    try {
+      await this.migrationService.startMigration();
+    } catch (error) {
+      console.error('Error starting migration:', error);
+    }
+  }
+
+  // Method to export notes as JSON
+  async exportNotes(): Promise<void> {
+    try {
+      await this.migrationService.exportNotes();
+    } catch (error) {
+      console.error('Error exporting notes:', error);
+    }
+  }
+
+  // Method to reset migration status (for testing)
+  resetMigrationStatus(): void {
+    this.migrationService.resetMigrationStatus();
   }
 }

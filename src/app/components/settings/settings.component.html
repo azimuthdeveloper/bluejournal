@@ -63,6 +63,70 @@
 
 
 
+      <!-- Data Management Section -->
+      <div class="settings-section">
+        <h3>Data Management</h3>
+        <p class="settings-description">
+          Manage your notes data and storage options.
+        </p>
+
+        <!-- Migration Status -->
+        <div *ngIf="!migrationComplete && !migrationSkipped" class="data-management-item">
+          <div class="data-management-content">
+            <h4>Storage Upgrade</h4>
+            <p>Upgrade to a more reliable storage system for your notes. This will make your data more secure and less likely to be lost.</p>
+
+            <!-- Migration in progress -->
+            <div *ngIf="migrationInProgress" class="migration-status">
+              <mat-spinner diameter="24"></mat-spinner>
+              <span>Migration in progress...</span>
+            </div>
+
+            <!-- Migration failed -->
+            <div *ngIf="migrationFailed" class="migration-status error">
+              <mat-icon>error</mat-icon>
+              <span>Migration failed. Please try again.</span>
+            </div>
+          </div>
+
+          <button mat-raised-button
+                 color="primary"
+                 (click)="startMigration()"
+                 [disabled]="migrationInProgress"
+                 class="action-button">
+            <mat-icon>upgrade</mat-icon>
+            Upgrade Storage
+          </button>
+        </div>
+
+        <!-- Migration Complete -->
+        <div *ngIf="migrationComplete" class="data-management-item">
+          <div class="data-management-content">
+            <h4>Storage Upgrade</h4>
+            <div class="migration-status success">
+              <mat-icon>check_circle</mat-icon>
+              <span>Storage upgrade complete!</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Notes -->
+        <div class="data-management-item">
+          <div class="data-management-content">
+            <h4>Export Notes</h4>
+            <p>Download a backup copy of all your notes as a JSON file.</p>
+          </div>
+
+          <button mat-raised-button
+                 (click)="exportNotes()"
+                 [disabled]="migrationInProgress"
+                 class="action-button">
+            <mat-icon>download</mat-icon>
+            Export Notes
+          </button>
+        </div>
+      </div>
+
       <!-- App Installation Section -->
       <div class="settings-section" *ngIf="canInstallApp">
         <h3>Install App</h3>

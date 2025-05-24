@@ -153,6 +153,76 @@
   margin-right: 4px;
 }
 
+/* Data Management Styles */
+.data-management-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.data-management-content {
+  flex: 1;
+  padding-right: 16px;
+}
+
+.data-management-content h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.data-management-content p {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: var(--secondary-text-color);
+}
+
+.action-button {
+  align-self: center;
+  white-space: nowrap;
+}
+
+.migration-status {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  margin-top: 8px;
+}
+
+.migration-status mat-spinner,
+.migration-status mat-icon {
+  margin-right: 12px;
+}
+
+.migration-status span {
+  font-size: 14px;
+}
+
+.migration-status.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.migration-status.success mat-icon {
+  color: #2e7d32;
+}
+
+.migration-status.error {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.migration-status.error mat-icon {
+  color: #c62828;
+}
+
 @media (max-width: 600px) {
   .settings-container {
     padding: 8px;

@@ -11,9 +11,12 @@ import { Subscription } from 'rxjs';
 import { ThemeService } from './services/theme.service';
 import { GitInfoService } from './services/git-info.service';
 import { UpdateService } from './services/update.service';
+import { MigrationService } from './services/migration.service';
+import { NotesService } from './services/notes.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InstallPromptComponent } from './components/install-prompt/install-prompt.component';
 import { UpdatePromptComponent } from './components/update-prompt/update-prompt.component';
+import { MigrationPromptComponent } from './components/migration-prompt/migration-prompt.component';
 
 @Component({
   selector: 'app-root',
@@ -30,7 +33,8 @@ import { UpdatePromptComponent } from './components/update-prompt/update-prompt.
     MatListModule,
     MatDialogModule,
     InstallPromptComponent,
-    UpdatePromptComponent
+    UpdatePromptComponent,
+    MigrationPromptComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -55,6 +59,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private themeService: ThemeService,
     private gitInfoService: GitInfoService,
     private updateService: UpdateService,
+    private migrationService: MigrationService,
+    private notesService: NotesService,
     private dialog: MatDialog
   ) {
     // Subscribe to router events to detect when the route changes
@@ -105,6 +111,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Load navigation options from localStorage
     this.loadNavigationOptions();
+
+    // Check if migration is needed and show prompt after a delay
+    // to allow the app to initialize
+    setTimeout(() => {
+      this.checkMigrationStatus();
+    }, 1000);
   }
 
   // Load navigation options from localStorage
@@ -225,5 +237,52 @@ export class AppComponent implements OnInit, OnDestroy {
       localStorage.removeItem('bluejournal_prompt_rejected');
       this.showInstallPrompt();
     }
+  }
+
+  /**
+   * Check if migration is needed and show prompt
+   */
+  private async checkMigrationStatus(): Promise<void> {
+    try {
+      // Wait for migration service to initialize
+      await this.migrationService.waitForInitialization();
+
+      // Check if migration is needed
+      if (this.migrationService.isMigrationNeeded()) {
+        // Wait for notes service to initialize to get note count
+        await this.notesService.waitForInitialization();
+
+        // Get note count
+        const noteCount = await new Promise<number>(resolve => {
+          const subscription = this.notesService.getNotes().subscribe(notes => {
+            subscription.unsubscribe();
+            resolve(notes.length);
+          });
+        });
+
+        // Show migration prompt if not on warning page
+        if (!this.isWarningPage) {
+          this.showMigrationPrompt(noteCount);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking migration status:', error);
+    }
+  }
+
+  /**
+   * Show the migration prompt dialog
+   */
+  showMigrationPrompt(noteCount: number): void {
+    // Open the dialog
+    const dialogRef = this.dialog.open(MigrationPromptComponent, {
+      width: '450px',
+      data: { noteCount }
+    });
+
+    // Handle dialog close
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('Migration dialog closed with result:', result);
+    });
   }
 }
