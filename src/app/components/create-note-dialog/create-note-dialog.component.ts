@@ -234,6 +234,26 @@ export class CreateNoteDialogComponent implements OnInit {
     }
   }
 
+  // Method called when contenteditable content changes
+  onContentChange(event: Event): void {
+    const element = event.target as HTMLElement;
+    this.newNote.content = element.innerHTML;
+  }
+
+  // Apply formatting to the selected text
+  applyFormat(command: string): void {
+    document.execCommand(command, false);
+
+    // Focus back on the editor to continue editing
+    const editor = document.querySelector('.editor-content') as HTMLElement;
+    if (editor) {
+      editor.focus();
+
+      // Update the note content with the formatted HTML
+      this.newNote.content = editor.innerHTML;
+    }
+  }
+
   // Open image viewer dialog
   openImageViewer(imageUrl: string): void {
     this.dialog.open(ImageViewerComponent, {

@@ -322,6 +322,32 @@ export class NotesComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Method called when contenteditable content changes
+  onContentChange(event: Event): void {
+    if (this.editingNote) {
+      const element = event.target as HTMLElement;
+      this.editingNote.content = element.innerHTML;
+      this.noteChanges.next({ ...this.editingNote } as Note);
+    }
+  }
+
+  // Apply formatting to the selected text
+  applyFormat(command: string): void {
+    document.execCommand(command, false);
+
+    // Focus back on the editor to continue editing
+    const editor = document.querySelector('.editor-content') as HTMLElement;
+    if (editor) {
+      editor.focus();
+    }
+
+    // Trigger content change to save the formatted content
+    if (this.editingNote) {
+      this.editingNote.content = editor?.innerHTML || this.editingNote.content;
+      this.noteChanges.next({ ...this.editingNote } as Note);
+    }
+  }
+
   // Update categories and trigger auto-save
   updateCategories(categoriesInput: string): void {
     if (this.editingNote) {

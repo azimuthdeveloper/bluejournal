@@ -83,10 +83,35 @@
                 <input matInput [(ngModel)]="editingNote.title" placeholder="Note title" (ngModelChange)="onNoteFieldChange()">
               </mat-form-field>
 
-              <mat-form-field appearance="fill" class="full-width">
-                <mat-label>Content</mat-label>
-                <textarea matInput [(ngModel)]="editingNote.content" rows="4" placeholder="Note content" (ngModelChange)="onNoteFieldChange()"></textarea>
-              </mat-form-field>
+              <div class="editor-container">
+                <div class="editor-toolbar">
+                  <button mat-icon-button type="button" (click)="applyFormat('bold')" title="Bold">
+                    <mat-icon>format_bold</mat-icon>
+                  </button>
+                  <button mat-icon-button type="button" (click)="applyFormat('italic')" title="Italic">
+                    <mat-icon>format_italic</mat-icon>
+                  </button>
+                  <button mat-icon-button type="button" (click)="applyFormat('underline')" title="Underline">
+                    <mat-icon>format_underlined</mat-icon>
+                  </button>
+                  <button mat-icon-button type="button" (click)="applyFormat('strikeThrough')" title="Strike Through">
+                    <mat-icon>format_strikethrough</mat-icon>
+                  </button>
+                  <span class="toolbar-divider"></span>
+                  <button mat-icon-button type="button" (click)="applyFormat('insertUnorderedList')" title="Bullet List">
+                    <mat-icon>format_list_bulleted</mat-icon>
+                  </button>
+                  <button mat-icon-button type="button" (click)="applyFormat('insertOrderedList')" title="Numbered List">
+                    <mat-icon>format_list_numbered</mat-icon>
+                  </button>
+                </div>
+                <div
+                  class="editor-content"
+                  contenteditable="true"
+                  [innerHTML]="editingNote.content"
+                  (input)="onContentChange($event)"
+                  placeholder="Note content"></div>
+              </div>
 
               <div class="category-section">
                 <mat-form-field appearance="fill" class="full-width">
@@ -178,7 +203,7 @@
                   <img [src]="note.image" class="note-image" (click)="openImageViewer(note.image)" role="button" aria-label="View full size image">
                 </div>
               }
-              <p class="note-content">{{ note.content }}</p>
+              <div class="note-content" [innerHTML]="note.content"></div>
             </mat-card-content>
             <mat-card-actions>
               <button mat-icon-button color="primary" (click)="editNote(note)">
