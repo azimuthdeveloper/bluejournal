@@ -45,6 +45,15 @@ export class CreateNoteDialogComponent implements OnInit {
 
   ngOnInit(): void {
     // Initialize component
+
+    // Initialize the contenteditable element with the note content
+    // This needs to be done after the component is rendered
+    setTimeout(() => {
+      const editor = document.querySelector('.editor-content') as HTMLElement;
+      if (editor && this.newNote) {
+        editor.innerHTML = this.newNote.content;
+      }
+    });
   }
 
   // Handle clipboard paste events for images

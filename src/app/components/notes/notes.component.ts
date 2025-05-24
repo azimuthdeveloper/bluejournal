@@ -265,6 +265,15 @@ export class NotesComponent implements OnInit, OnDestroy {
 
     // Set up property change detection for auto-save
     this.setupNoteChangeDetection();
+
+    // Initialize the contenteditable element with the note content
+    // This needs to be done after the component is rendered
+    setTimeout(() => {
+      const editor = document.querySelector('.editor-content') as HTMLElement;
+      if (editor && this.editingNote) {
+        editor.innerHTML = this.editingNote.content;
+      }
+    });
   }
 
   // This method is kept for backward compatibility but is no longer used in the UI
@@ -326,7 +335,11 @@ export class NotesComponent implements OnInit, OnDestroy {
   onContentChange(event: Event): void {
     if (this.editingNote) {
       const element = event.target as HTMLElement;
+      // Just store the content without triggering a UI update
       this.editingNote.content = element.innerHTML;
+
+      // Debounce the save operation to avoid cursor jumping
+      // The noteChanges Subject already has debounceTime applied
       this.noteChanges.next({ ...this.editingNote } as Note);
     }
   }
@@ -337,9 +350,9 @@ export class NotesComponent implements OnInit, OnDestroy {
 
     // Focus back on the editor to continue editing
     const editor = document.querySelector('.editor-content') as HTMLElement;
-    if (editor) {
-      editor.focus();
-    }
+    // if (editor) {
+    //   editor.focus();
+    // }
 
     // Trigger content change to save the formatted content
     if (this.editingNote) {
