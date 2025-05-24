@@ -32,7 +32,7 @@
           <mat-list-item (click)="toggleMap()">
             <div class="feature-list-item">
               <div class="feature-content">
-<!--                <h4>Crossword Puzzle</h4>-->
+                <!--                <h4>Crossword Puzzle</h4>-->
                 <p>Show the "Map" option in the top app bar</p>
                 <img src="assets/crossword.jpg" alt="Crossword puzzle" class="feature-image"> <p>.... get it? IYKYK.</p>
               </div>
@@ -71,44 +71,49 @@
         </p>
 
         <!-- Migration Status -->
-        <div *ngIf="!migrationComplete && !migrationSkipped" class="data-management-item">
-          <div class="data-management-content">
-            <h4>Storage Upgrade</h4>
-            <p>Upgrade to a more reliable storage system for your notes. This will make your data more secure and less likely to be lost.</p>
-
-            <!-- Migration in progress -->
-            <div *ngIf="migrationInProgress" class="migration-status">
-              <mat-spinner diameter="24"></mat-spinner>
-              <span>Migration in progress...</span>
+        @if (!migrationComplete && !migrationSkipped) {
+          <div class="data-management-item">
+            <div class="data-management-content">
+              <h4>Storage Upgrade</h4>
+              <p>Upgrade to a more reliable storage system for your notes. This will make your data more secure and less likely to be lost.</p>
+              <!-- Migration in progress -->
+              @if (migrationInProgress) {
+                <div class="migration-status">
+                  <mat-spinner diameter="24"></mat-spinner>
+                  <span>Migration in progress...</span>
+                </div>
+              }
+              <!-- Migration failed -->
+              @if (migrationFailed) {
+                <div class="migration-status error">
+                  <mat-icon>error</mat-icon>
+                  <span>Migration failed. Please try again.</span>
+                </div>
+              }
             </div>
-
-            <!-- Migration failed -->
-            <div *ngIf="migrationFailed" class="migration-status error">
-              <mat-icon>error</mat-icon>
-              <span>Migration failed. Please try again.</span>
-            </div>
+            <button mat-raised-button
+              color="primary"
+              (click)="startMigration()"
+              [disabled]="migrationInProgress"
+              class="action-button">
+              <mat-icon>upgrade</mat-icon>
+              Upgrade Storage
+            </button>
           </div>
-
-          <button mat-raised-button
-                 color="primary"
-                 (click)="startMigration()"
-                 [disabled]="migrationInProgress"
-                 class="action-button">
-            <mat-icon>upgrade</mat-icon>
-            Upgrade Storage
-          </button>
-        </div>
+        }
 
         <!-- Migration Complete -->
-        <div *ngIf="migrationComplete" class="data-management-item">
-          <div class="data-management-content">
-            <h4>Storage Upgrade</h4>
-            <div class="migration-status success">
-              <mat-icon>check_circle</mat-icon>
-              <span>Storage upgrade complete!</span>
+        @if (migrationComplete) {
+          <div class="data-management-item">
+            <div class="data-management-content">
+              <h4>Storage Upgrade</h4>
+              <div class="migration-status success">
+                <mat-icon>check_circle</mat-icon>
+                <span>Storage upgrade complete!</span>
+              </div>
             </div>
           </div>
-        </div>
+        }
 
         <!-- Export Notes -->
         <div class="data-management-item">
@@ -118,9 +123,9 @@
           </div>
 
           <button mat-raised-button
-                 (click)="exportNotes()"
-                 [disabled]="migrationInProgress"
-                 class="action-button">
+            (click)="exportNotes()"
+            [disabled]="migrationInProgress"
+            class="action-button">
             <mat-icon>download</mat-icon>
             Export Notes
           </button>
@@ -128,21 +133,23 @@
       </div>
 
       <!-- App Installation Section -->
-      <div class="settings-section" *ngIf="canInstallApp">
-        <h3>Install App</h3>
-        <p class="settings-description">
-          Install Blue Journal on your device for a better experience. You'll be able to use the app offline and it will load faster.
-        </p>
-        <div class="support-links">
-          <button mat-raised-button
-                 color="primary"
-                 (click)="installApp()"
-                 class="support-button">
-            <mat-icon>get_app</mat-icon>
-            Install App
-          </button>
+      @if (canInstallApp) {
+        <div class="settings-section">
+          <h3>Install App</h3>
+          <p class="settings-description">
+            Install Blue Journal on your device for a better experience. You'll be able to use the app offline and it will load faster.
+          </p>
+          <div class="support-links">
+            <button mat-raised-button
+              color="primary"
+              (click)="installApp()"
+              class="support-button">
+              <mat-icon>get_app</mat-icon>
+              Install App
+            </button>
+          </div>
         </div>
-      </div>
+      }
 
       <!-- Support Section -->
       <div class="settings-section">
@@ -152,10 +159,10 @@
         </p>
         <div class="support-links">
           <a mat-raised-button
-             color="primary"
-             href="https://www.buymeacoffee.com/flutterscratch"
-             target="_blank"
-             class="support-button">
+            color="primary"
+            href="https://www.buymeacoffee.com/flutterscratch"
+            target="_blank"
+            class="support-button">
             <mat-icon>local_cafe</mat-icon>
             Buy Me a Coffee
           </a>

@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,7 +19,6 @@ interface DialogData {
   selector: 'app-create-note-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     MatDialogModule,
     MatFormFieldModule,
@@ -29,7 +28,7 @@ interface DialogData {
     MatCardModule,
     MatSnackBarModule,
     ImageViewerComponent
-  ],
+],
   templateUrl: './create-note-dialog.component.html',
   styleUrls: ['./create-note-dialog.component.css']
 })

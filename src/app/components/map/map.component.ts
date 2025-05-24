@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { RoomDetailsComponent } from '../room-details/room-details.component';
@@ -18,13 +18,12 @@ interface Room {
   selector: 'app-map',
   standalone: true,
   imports: [
-    CommonModule,
     MatGridListModule,
     MatDialogModule,
     FormsModule,
     MatButtonModule,
     MatCardModule
-  ],
+],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css']
 })

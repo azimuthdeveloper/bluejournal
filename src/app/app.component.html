@@ -1,18 +1,24 @@
 <div class="app-container">
   <!-- Only show toolbar when not on warning page -->
-  <mat-toolbar *ngIf="!isWarningPage" color="primary" class="app-toolbar">
-    <span>{{ title }}</span>
-    <span class="toolbar-spacer"></span>
-    <nav>
-      <a mat-button routerLink="/notes" routerLinkActive="active">Notes</a>
-      <!-- Map tab shown only when enabled -->
-      <a mat-button *ngIf="showMapTab" routerLink="/map" routerLinkActive="active">Map</a>
-      <a mat-button *ngIf="showBilliardRoomTab" routerLink="/billiard-room-solver" routerLinkActive="active">Billiard Room</a>
-    </nav>
-    <button mat-icon-button (click)="openSettings()">
-      <mat-icon>settings</mat-icon>
-    </button>
-  </mat-toolbar>
+  @if (!isWarningPage) {
+    <mat-toolbar color="primary" class="app-toolbar">
+      <span>{{ title }}</span>
+      <span class="toolbar-spacer"></span>
+      <nav>
+        <a mat-button routerLink="/notes" routerLinkActive="active">Notes</a>
+        <!-- Map tab shown only when enabled -->
+        @if (showMapTab) {
+          <a mat-button routerLink="/map" routerLinkActive="active">Map</a>
+        }
+        @if (showBilliardRoomTab) {
+          <a mat-button routerLink="/billiard-room-solver" routerLinkActive="active">Billiard Room</a>
+        }
+      </nav>
+      <button mat-icon-button (click)="openSettings()">
+        <mat-icon>settings</mat-icon>
+      </button>
+    </mat-toolbar>
+  }
 
   <!-- Adjust content container based on whether toolbar is shown -->
   <div class="content-container" [ngClass]="{'no-toolbar': isWarningPage}">
@@ -20,7 +26,9 @@
   </div>
 
   <!-- Footer with commit hash -->
-  <div class="app-footer" *ngIf="commitHash">
-    <span class="commit-hash">{{ commitHash }}</span>
-  </div>
+  @if (commitHash) {
+    <div class="app-footer">
+      <span class="commit-hash">{{ commitHash }}</span>
+    </div>
+  }
 </div>

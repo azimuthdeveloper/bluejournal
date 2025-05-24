@@ -1,5 +1,5 @@
 import { Component, Inject, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,11 +12,10 @@ interface DialogData {
   selector: 'app-image-viewer',
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatIconModule
-  ],
+],
   templateUrl: './image-viewer.component.html',
   styleUrls: ['./image-viewer.component.css']
 })

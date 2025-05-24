@@ -5,46 +5,54 @@
     <div class="migration-message">
       <p>Blue Journal can now store your notes more reliably using modern browser storage.</p>
       <p>Would you like to upgrade your data storage now? This will make your notes more secure and less likely to be lost.</p>
-      <p *ngIf="data.noteCount > 0"><strong>{{ data.noteCount }} notes</strong> will be migrated.</p>
+      @if (data.noteCount > 0) {
+        <p><strong>{{ data.noteCount }} notes</strong> will be migrated.</p>
+      }
     </div>
   </div>
 
   <!-- Migration in progress -->
-  <div *ngIf="migrationInProgress" class="migration-status">
-    <mat-spinner diameter="30"></mat-spinner>
-    <p>Migrating your notes... Please wait.</p>
-  </div>
+  @if (migrationInProgress) {
+    <div class="migration-status">
+      <mat-spinner diameter="30"></mat-spinner>
+      <p>Migrating your notes... Please wait.</p>
+    </div>
+  }
 
   <!-- Migration complete -->
-  <div *ngIf="migrationComplete" class="migration-status success">
-    <mat-icon>check_circle</mat-icon>
-    <p>Migration completed successfully!</p>
-  </div>
+  @if (migrationComplete) {
+    <div class="migration-status success">
+      <mat-icon>check_circle</mat-icon>
+      <p>Migration completed successfully!</p>
+    </div>
+  }
 
   <!-- Migration failed -->
-  <div *ngIf="migrationFailed" class="migration-status error">
-    <mat-icon>error</mat-icon>
-    <p>Migration failed. Please try again later.</p>
-  </div>
+  @if (migrationFailed) {
+    <div class="migration-status error">
+      <mat-icon>error</mat-icon>
+      <p>Migration failed. Please try again later.</p>
+    </div>
+  }
 </div>
 
 <div mat-dialog-actions>
   <button mat-button
-          (click)="onExportNotes()"
-          [disabled]="migrationInProgress">
+    (click)="onExportNotes()"
+    [disabled]="migrationInProgress">
     <mat-icon>download</mat-icon> Backup Notes
   </button>
 
   <button mat-button
-          (click)="onMigrateLater()"
-          [disabled]="migrationInProgress || migrationComplete">
+    (click)="onMigrateLater()"
+    [disabled]="migrationInProgress || migrationComplete">
     Not Now
   </button>
 
   <button mat-raised-button
-          color="primary"
-          (click)="onMigrateNow()"
-          [disabled]="migrationInProgress || migrationComplete">
+    color="primary"
+    (click)="onMigrateNow()"
+    [disabled]="migrationInProgress || migrationComplete">
     <mat-icon>upgrade</mat-icon> Upgrade Now
   </button>
 </div>

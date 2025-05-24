@@ -19,35 +19,39 @@
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
 
-        <div class="active-filters" *ngIf="selectedCategories.length > 0">
-          <div class="active-filters-label">Active filters:</div>
-          <div class="active-category-chips">
-            @for (category of selectedCategories; track category) {
-              <span class="category-chip selected">
-                {{ category }}
-                <button mat-icon-button class="remove-filter-btn" (click)="filterByCategory(category)">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </span>
-            }
-            <button mat-button color="primary" (click)="clearCategoryFilters()">
-              <mat-icon>clear_all</mat-icon> Clear All
-            </button>
+        @if (selectedCategories.length > 0) {
+          <div class="active-filters">
+            <div class="active-filters-label">Active filters:</div>
+            <div class="active-category-chips">
+              @for (category of selectedCategories; track category) {
+                <span class="category-chip selected">
+                  {{ category }}
+                  <button mat-icon-button class="remove-filter-btn" (click)="filterByCategory(category)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </span>
+              }
+              <button mat-button color="primary" (click)="clearCategoryFilters()">
+                <mat-icon>clear_all</mat-icon> Clear All
+              </button>
+            </div>
           </div>
-        </div>
+        }
 
-        <div class="available-categories" *ngIf="categories.length > 0">
-          <div class="available-categories-label">Filter by category:</div>
-          <div class="category-chips">
-            @for (category of categories; track category) {
-              <span class="category-chip"
-                    [class.selected]="selectedCategories.includes(category)"
-                    (click)="filterByCategory(category)">
-                {{ category }}
-              </span>
-            }
+        @if (categories.length > 0) {
+          <div class="available-categories">
+            <div class="available-categories-label">Filter by category:</div>
+            <div class="category-chips">
+              @for (category of categories; track category) {
+                <span class="category-chip"
+                  [class.selected]="selectedCategories.includes(category)"
+                  (click)="filterByCategory(category)">
+                  {{ category }}
+                </span>
+              }
+            </div>
           </div>
-        </div>
+        }
       </div>
     </mat-card-content>
   </mat-card>
@@ -88,10 +92,10 @@
                 <mat-form-field appearance="fill" class="full-width">
                   <mat-label>Categories (Optional)</mat-label>
                   <input matInput
-                         #editCategoriesInput
-                         [value]="editingNote.categories?.join(', ')"
-                         placeholder="Enter categories separated by commas"
-                         (blur)="updateCategories(editCategoriesInput.value)">
+                    #editCategoriesInput
+                    [value]="editingNote.categories?.join(', ')"
+                    placeholder="Enter categories separated by commas"
+                    (blur)="updateCategories(editCategoriesInput.value)">
                   <mat-hint>Type categories separated by commas (e.g., "work, personal, important")</mat-hint>
                 </mat-form-field>
               </div>
@@ -144,15 +148,15 @@
                   @if (note.categories && note.categories.length > 0) {
                     @for (category of note.categories; track category) {
                       <span class="note-category"
-                            [class.selected]="selectedCategories.includes(category)"
-                            (click)="filterByCategory(category); $event.stopPropagation()">
+                        [class.selected]="selectedCategories.includes(category)"
+                        (click)="filterByCategory(category); $event.stopPropagation()">
                         {{ category }}
                       </span>
                     }
                   } @else if (note.category) {
                     <span class="note-category"
-                          [class.selected]="selectedCategories.includes(note.category)"
-                          (click)="filterByCategory(note.category); $event.stopPropagation()">
+                      [class.selected]="selectedCategories.includes(note.category)"
+                      (click)="filterByCategory(note.category); $event.stopPropagation()">
                       {{ note.category }}
                     </span>
                   }
