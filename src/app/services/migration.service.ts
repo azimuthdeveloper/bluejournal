@@ -1,7 +1,20 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import {BehaviorSubject, firstValueFrom, Observable} from 'rxjs';
 import { NotesService } from './notes.service';
 import { IndexedDBService } from './indexeddb.service';
+
+// Define the global gtag function if not already defined
+declare global {
+  interface Window {
+    gtag: (
+      command: string,
+      action: string,
+      params?: {
+        [key: string]: any;
+      }
+    ) => void;
+  }
+}
 
 export enum MigrationStatus {
   NOT_STARTED = 'not_started',
@@ -124,6 +137,10 @@ export class MigrationService {
       if (notes.length === 0) {
         console.log('No notes to migrate');
         this.updateMigrationStatus(MigrationStatus.COMPLETED);
+
+        // Send analytics event for successful migration with zero notes
+        this.sendMigrationCompletedEvent(0, true);
+
         return true;
       }
 
@@ -133,11 +150,19 @@ export class MigrationService {
       // Update status to completed
       this.updateMigrationStatus(MigrationStatus.COMPLETED);
 
+      // Send analytics event for successful migration
+      this.sendMigrationCompletedEvent(notes.length, true);
+
       console.log('Migration completed successfully');
       return true;
     } catch (error) {
       console.error('Error during migration:', error);
       this.updateMigrationStatus(MigrationStatus.FAILED);
+
+      // Send analytics event for failed migration
+      // Use 0 for note count if notes is undefined
+      this.sendMigrationCompletedEvent(0, false);
+
       return false;
     }
   }
@@ -168,19 +193,49 @@ export class MigrationService {
   }
 
   /**
+   * Send Google Analytics event for IndexedDB migration completed
+   * @param noteCount Number of notes migrated
+   * @param success Whether the migration was successful
+   */
+  private sendMigrationCompletedEvent(noteCount: number, success: boolean): void {
+    try {
+      // Send the event to Google Analytics
+      if (window.gtag) {
+        window.gtag('event', 'indexeddb_migration_completed', {
+          'note_count': noteCount,
+          'success': success,
+          'database_version': this.indexedDBService.getDatabaseVersion()
+        });
+        console.log('Sent indexeddb_migration_completed event to Google Analytics', {
+          noteCount,
+          success,
+          databaseVersion: this.indexedDBService.getDatabaseVersion()
+        });
+      } else {
+        console.warn('Google Analytics not available, could not send indexeddb_migration_completed event');
+      }
+    } catch (error) {
+      console.error('Error sending indexeddb_migration_completed event to Google Analytics:', error);
+    }
+  }
+
+  /**
    * Get all notes from localStorage via the NotesService
    */
   private async getNotes(): Promise<any[]> {
     // Wait for the notes service to initialize
     await this.notesService.waitForInitialization();
 
+    const notes = firstValueFrom(this.notesService.getNotes());
+    return notes;
+
     // Get notes from the BehaviorSubject
-    return new Promise<any[]>((resolve) => {
-      const subscription = this.notesService.getNotes().subscribe(notes => {
-        subscription.unsubscribe();
-        resolve(notes);
-      });
-    });
+    // return new Promise<any[]>((resolve) => {
+    //   const subscription = this.notesService.getNotes().subscribe(notes => {
+    //     subscription.unsubscribe();
+    //     resolve(notes);
+    //   });
+    // });
   }
 
   /**
