@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import {BehaviorSubject, firstValueFrom, Observable} from 'rxjs';
+import { Injectable, inject, Injector } from '@angular/core';
+import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { NotesService } from './notes.service';
 import { IndexedDBService } from './indexeddb.service';
 
@@ -26,7 +26,7 @@ export enum MigrationStatus {
   providedIn: 'root'
 })
 export class MigrationService {
-  private notesService = inject(NotesService);
+  private injector = inject(Injector);
   private indexedDBService = inject(IndexedDBService);
 
   private readonly MIGRATION_STATUS_KEY = 'bluejournal_indexeddb_migration_status';
@@ -126,9 +126,10 @@ export class MigrationService {
       // Update status to in progress
       this.updateMigrationStatus(MigrationStatus.IN_PROGRESS);
 
+      const notesService = this.injector.get(NotesService);
       // Wait for both services to initialize
       await Promise.all([
-        this.notesService.waitForInitialization(),
+        notesService.waitForInitialization(),
         this.indexedDBService.waitForInitialization()
       ]);
 
@@ -224,10 +225,11 @@ export class MigrationService {
    * Get all notes from localStorage via the NotesService
    */
   private async getNotes(): Promise<any[]> {
+    const notesService = this.injector.get(NotesService);
     // Wait for the notes service to initialize
-    await this.notesService.waitForInitialization();
+    await notesService.waitForInitialization();
 
-    const notes = firstValueFrom(this.notesService.getNotes());
+    const notes = firstValueFrom(notesService.getNotes());
     return notes;
 
     // Get notes from the BehaviorSubject
@@ -252,7 +254,8 @@ export class MigrationService {
         this.downloadJson(notesJson, 'bluejournal-notes.json');
       } else {
         // Otherwise, get notes from localStorage
-        await this.notesService.waitForInitialization();
+        const notesService = this.injector.get(NotesService);
+        await notesService.waitForInitialization();
         const notes = await this.getNotes();
         const notesJson = JSON.stringify(notes, null, 2);
         this.downloadJson(notesJson, 'bluejournal-notes.json');

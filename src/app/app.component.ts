@@ -7,7 +7,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { ThemeService } from './services/theme.service';
 import { GitInfoService } from './services/git-info.service';
 import { UpdateService } from './services/update.service';
@@ -253,17 +253,10 @@ export class AppComponent implements OnInit, OnDestroy {
         await this.notesService.waitForInitialization();
 
         // Get note count
-        const noteCount = await new Promise<number>(resolve => {
-          // Initialize subscription variable first
-          let subscription: Subscription;
-          // Then assign the subscription
-          subscription = this.notesService.getNotes().subscribe(notes => {
-            subscription.unsubscribe();
-            resolve(notes.length);
-          });
-        });
+        const notes = await firstValueFrom(this.notesService.getNotes());
+        const noteCount = notes.length;
 
-        // Show migration prompt if not on warning page
+        // Show migration prompt if not be on warning page
         if (!this.isWarningPage) {
           this.showMigrationPrompt(noteCount);
         }
@@ -284,11 +277,9 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     // Handle dialog close
-    // Store the subscription to avoid memory leaks
-    const subscription = dialogRef.afterClosed().subscribe(result => {
+    // Handle dialog close
+    firstValueFrom(dialogRef.afterClosed()).then(result => {
       console.log('Migration dialog closed with result:', result);
-      // Unsubscribe when done
-      subscription.unsubscribe();
     });
   }
 }
