@@ -32,8 +32,7 @@ import { NotesService, Note } from '../../services/notes.service';
     MatDividerModule,
     MatSelectModule,
     MatDialogModule,
-    MatSnackBarModule,
-    ImageViewerComponent
+    MatSnackBarModule
   ],
   templateUrl: './notes.component.html',
   styleUrls: ['./notes.component.css']
@@ -64,7 +63,7 @@ export class NotesComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private notesService: NotesService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Subscribe to notes from the service
@@ -90,7 +89,7 @@ export class NotesComponent implements OnInit, OnDestroy {
   }
 
   // Scroll event handler
-  @HostListener('window:scroll', ['$event'])
+  @HostListener('window:scroll')
   onWindowScroll() {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
 

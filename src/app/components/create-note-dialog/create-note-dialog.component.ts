@@ -26,9 +26,8 @@ interface DialogData {
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatSnackBarModule,
-    ImageViewerComponent
-],
+    MatSnackBarModule
+  ],
   templateUrl: './create-note-dialog.component.html',
   styleUrls: ['./create-note-dialog.component.css']
 })
@@ -41,7 +40,7 @@ export class CreateNoteDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Initialize component

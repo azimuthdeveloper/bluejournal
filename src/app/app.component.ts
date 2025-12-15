@@ -31,10 +31,7 @@ import { MigrationPromptComponent } from './components/migration-prompt/migratio
     MatIconModule,
     MatSidenavModule,
     MatListModule,
-    MatDialogModule,
-    InstallPromptComponent,
-    UpdatePromptComponent,
-    MigrationPromptComponent
+    MatDialogModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
