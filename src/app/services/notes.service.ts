@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { IndexedDBService } from './indexeddb.service';
 import { MigrationService, MigrationStatus } from './migration.service';
@@ -44,7 +45,8 @@ export class NotesService {
 
   constructor(
     private indexedDBService: IndexedDBService,
-    private migrationService: MigrationService
+    private migrationService: MigrationService,
+    private snackBar: MatSnackBar
   ) {
     console.log('NotesService constructor called');
 
@@ -443,6 +445,8 @@ export class NotesService {
         // Fallback to in-memory only if IndexedDB fails
         this.notes.unshift(noteCopy);
         this.notesSubject.next(this.notes);
+
+        this.handleStorageError(error);
       }
     } else {
       // Otherwise, save to localStorage
@@ -554,6 +558,8 @@ export class NotesService {
           // Fallback to in-memory update if IndexedDB fails
           this.notes[index] = noteCopy;
           this.notesSubject.next(this.notes);
+
+          this.handleStorageError(error);
         }
       } else {
         // Otherwise, update in localStorage
@@ -665,6 +671,31 @@ export class NotesService {
     } catch (error) {
       console.error('Error saving note to localStorage:', error);
       // Continue with in-memory storage only
+    }
+  }
+
+  /**
+   * Handle storage errors and notify user
+   */
+  private handleStorageError(error: any): void {
+    console.error('Storage error:', error);
+
+    // Check if it's a quota exceeded error
+    const isQuotaError = error && (
+      error.name === 'QuotaExceededError' ||
+      error.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+      (error.message && error.message.includes('quota'))
+    );
+
+    if (isQuotaError) {
+      this.snackBar.open('Storage full! Note saved to MEMORY ONLY. Free up space!', 'Close', {
+        duration: 10000,
+        panelClass: ['error-snackbar']
+      });
+    } else {
+      this.snackBar.open('Error saving note. Saved to memory only.', 'Close', {
+        duration: 5000
+      });
     }
   }
 }
