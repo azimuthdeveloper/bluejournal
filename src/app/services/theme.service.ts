@@ -1,4 +1,5 @@
-import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
+import { Injectable, Renderer2, RendererFactory2, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
@@ -7,12 +8,14 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class ThemeService {
   private renderer: Renderer2;
   private darkMode = new BehaviorSubject<boolean>(false);
+  private platformId: Object; // Declare property
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
   constructor() {
     const rendererFactory = inject(RendererFactory2);
+    this.platformId = inject(PLATFORM_ID); // Initialize before initTheme is called
 
     this.renderer = rendererFactory.createRenderer(null, null);
 
@@ -22,24 +25,26 @@ export class ThemeService {
 
   private initTheme(): void {
     // Check localStorage first
-    const storedTheme = localStorage.getItem('bluejournal_dark_mode');
+    if (isPlatformBrowser(this.platformId)) {
+      const storedTheme = localStorage.getItem('bluejournal_dark_mode');
 
-    if (storedTheme !== null) {
-      // Use stored preference
-      const isDarkMode = storedTheme === 'true';
-      this.setDarkMode(isDarkMode);
-    } else {
-      // Check system preference
-      const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      this.setDarkMode(prefersDarkMode);
+      if (storedTheme !== null) {
+        // Use stored preference
+        const isDarkMode = storedTheme === 'true';
+        this.setDarkMode(isDarkMode);
+      } else {
+        // Check system preference
+        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        this.setDarkMode(prefersDarkMode);
 
-      // Listen for changes in system preference
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        // Only update if user hasn't set a preference
-        if (localStorage.getItem('bluejournal_dark_mode') === null) {
-          this.setDarkMode(e.matches);
-        }
-      });
+        // Listen for changes in system preference
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+          // Only update if user hasn't set a preference
+          if (localStorage.getItem('bluejournal_dark_mode') === null) {
+            this.setDarkMode(e.matches);
+          }
+        });
+      }
     }
   }
 
@@ -56,24 +61,26 @@ export class ThemeService {
     this.darkMode.next(isDarkMode);
 
     // Save to localStorage
-    localStorage.setItem('bluejournal_dark_mode', isDarkMode.toString());
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('bluejournal_dark_mode', isDarkMode.toString());
 
-    // Apply theme to document
-    if (isDarkMode) {
-      this.renderer.addClass(document.body, 'dark-theme');
+      // Apply theme to document
+      if (isDarkMode) {
+        this.renderer.addClass(document.body, 'dark-theme');
 
-      // Update meta theme-color for browser UI
-      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-      if (metaThemeColor) {
-        metaThemeColor.setAttribute('content', '#303030');
-      }
-    } else {
-      this.renderer.removeClass(document.body, 'dark-theme');
+        // Update meta theme-color for browser UI
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+          metaThemeColor.setAttribute('content', '#303030');
+        }
+      } else {
+        this.renderer.removeClass(document.body, 'dark-theme');
 
-      // Reset meta theme-color for browser UI
-      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-      if (metaThemeColor) {
-        metaThemeColor.setAttribute('content', '#1976d2');
+        // Reset meta theme-color for browser UI
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+          metaThemeColor.setAttribute('content', '#1976d2');
+        }
       }
     }
   }

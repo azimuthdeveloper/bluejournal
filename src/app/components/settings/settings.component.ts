@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +27,7 @@ import { MigrationService, MigrationStatus } from '../../services/migration.serv
     MatCheckboxModule,
     MatListModule,
     MatProgressSpinnerModule
-],
+  ],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })
@@ -35,6 +36,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private appComponent = inject(AppComponent);
   private themeService = inject(ThemeService);
   private migrationService = inject(MigrationService);
+  private platformId = inject(PLATFORM_ID);
 
   // Feature visibility settings
   showBilliardRoom = false;
@@ -57,7 +59,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() { }
 
   ngOnInit(): void {
     // Initialize dark mode state
@@ -72,15 +74,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.canInstallApp = this.appComponent.canInstallApp();
 
     // Load billiard room visibility from localStorage
-    const showBilliardRoom = localStorage.getItem('bluejournal_show_billiard_room');
-    if (showBilliardRoom !== null) {
-      this.showBilliardRoom = showBilliardRoom === 'true';
-    }
+    if (isPlatformBrowser(this.platformId)) {
+      const showBilliardRoom = localStorage.getItem('bluejournal_show_billiard_room');
+      if (showBilliardRoom !== null) {
+        this.showBilliardRoom = showBilliardRoom === 'true';
+      }
 
-    // Load map visibility from localStorage
-    const showMap = localStorage.getItem('bluejournal_show_map');
-    if (showMap !== null) {
-      this.showMap = showMap === 'true';
+      // Load map visibility from localStorage
+      const showMap = localStorage.getItem('bluejournal_show_map');
+      if (showMap !== null) {
+        this.showMap = showMap === 'true';
+      }
     }
 
     // Apply settings to app component
@@ -111,14 +115,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // Method to toggle billiard room visibility
   toggleBilliardRoom(): void {
     this.showBilliardRoom = !this.showBilliardRoom;
-    localStorage.setItem('bluejournal_show_billiard_room', this.showBilliardRoom.toString());
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('bluejournal_show_billiard_room', this.showBilliardRoom.toString());
+    }
     this.updateNavigationOptions();
   }
 
   // Method to toggle map visibility
   toggleMap(): void {
     this.showMap = !this.showMap;
-    localStorage.setItem('bluejournal_show_map', this.showMap.toString());
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('bluejournal_show_map', this.showMap.toString());
+    }
     this.updateNavigationOptions();
   }
 
@@ -126,19 +134,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private updateNavigationOptions(): void {
     // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
     // setTimeout(() => {
-      // Update map tab visibility
-      if (this.showMap) {
-        this.appComponent.enableMapTab();
-      } else {
-        this.appComponent.disableMapTab();
-      }
+    // Update map tab visibility
+    if (this.showMap) {
+      this.appComponent.enableMapTab();
+    } else {
+      this.appComponent.disableMapTab();
+    }
 
-      // Update billiard room tab visibility
-      if (this.showBilliardRoom) {
-        this.appComponent.enableBilliardRoomTab();
-      } else {
-        this.appComponent.disableBilliardRoomTab();
-      }
+    // Update billiard room tab visibility
+    if (this.showBilliardRoom) {
+      this.appComponent.enableBilliardRoomTab();
+    } else {
+      this.appComponent.disableBilliardRoomTab();
+    }
     // });
   }
 

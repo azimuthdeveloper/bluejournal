@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
@@ -23,13 +24,14 @@ interface Room {
     FormsModule,
     MatButtonModule,
     MatCardModule
-],
+  ],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css']
 })
 export class MapComponent implements OnInit {
   private dialog = inject(MatDialog);
   private notesService = inject(NotesService);
+  private platformId = inject(PLATFORM_ID);
 
   rooms: Room[] = [];
   cols = 5;
@@ -43,11 +45,14 @@ export class MapComponent implements OnInit {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() { }
 
   ngOnInit(): void {
     // Load rooms from localStorage or initialize if not exists
-    const savedRooms = localStorage.getItem('bluejournal_rooms');
+    let savedRooms: string | null = null;
+    if (isPlatformBrowser(this.platformId)) {
+      savedRooms = localStorage.getItem('bluejournal_rooms');
+    }
     if (savedRooms) {
       this.rooms = JSON.parse(savedRooms);
     } else {
@@ -120,6 +125,8 @@ export class MapComponent implements OnInit {
   }
 
   private saveRooms(): void {
-    localStorage.setItem('bluejournal_rooms', JSON.stringify(this.rooms));
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('bluejournal_rooms', JSON.stringify(this.rooms));
+    }
   }
 }

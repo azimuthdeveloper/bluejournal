@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { MatDialog } from '@angular/material/dialog';
 import { filter, map } from 'rxjs/operators';
@@ -11,11 +12,12 @@ import { UpdatePromptComponent } from '../components/update-prompt/update-prompt
 export class UpdateService {
   private swUpdate = inject(SwUpdate);
   private dialog = inject(MatDialog);
+  private platformId = inject(PLATFORM_ID);
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() { }
 
   /**
    * Check if service worker updates are supported
@@ -28,8 +30,8 @@ export class UpdateService {
    * Check for updates
    */
   public checkForUpdates(): void {
-    if (!this.swUpdate.isEnabled) {
-      console.log('Service Worker updates are not enabled');
+    if (!isPlatformBrowser(this.platformId) || !this.swUpdate.isEnabled) {
+      console.log('Service Worker updates are not enabled or not on browser');
       return;
     }
 
@@ -64,7 +66,9 @@ export class UpdateService {
    * Reload the page to apply the update
    */
   public reloadPage(): void {
-    document.location.reload();
+    if (isPlatformBrowser(this.platformId)) {
+      document.location.reload();
+    }
   }
 
   /**

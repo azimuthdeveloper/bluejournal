@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "serve:ssr:bluejournal": "node dist/bluejournal/server/server.mjs"
   },
   "private": true,
   "dependencies": {
@@ -20,9 +21,12 @@
     "@angular/material": "^21.0.3",
     "@angular/platform-browser": "^21.0.5",
     "@angular/platform-browser-dynamic": "^21.0.5",
+    "@angular/platform-server": "^21.0.5",
     "@angular/router": "^21.0.5",
     "@angular/service-worker": "^21.0.5",
+    "@angular/ssr": "^21.0.3",
     "dexie": "^4.0.11",
+    "express": "^5.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
@@ -31,7 +35,9 @@
     "@angular/build": "^21.0.3",
     "@angular/cli": "^21.0.3",
     "@angular/compiler-cli": "^21.0.5",
+    "@types/express": "^5.0.1",
     "@types/jasmine": "~5.1.0",
+    "@types/node": "^20.17.19",
     "angular-eslint": "21.1.0",
     "eslint": "^9.39.1",
     "jasmine-core": "~5.6.0",

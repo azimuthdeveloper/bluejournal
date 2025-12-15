@@ -1,6 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { IndexedDBService } from './indexeddb.service';
 import { MigrationService, MigrationStatus } from './migration.service';
 
@@ -33,6 +34,7 @@ export class NotesService {
   private indexedDBService = inject(IndexedDBService);
   private migrationService = inject(MigrationService);
   private snackBar = inject(MatSnackBar);
+  private platformId = inject(PLATFORM_ID);
 
   private notes: Note[] = [];
   private notesSubject = new BehaviorSubject<Note[]>([]);
@@ -70,12 +72,7 @@ export class NotesService {
       await this.migrationService.waitForInitialization();
 
       // Check if IndexedDB migration is complete
-      const migrationStatus = await new Promise<MigrationStatus>(resolve => {
-        const subscription = this.migrationService.getMigrationStatus().subscribe(status => {
-          subscription.unsubscribe();
-          resolve(status);
-        });
-      });
+      const migrationStatus = await firstValueFrom(this.migrationService.getMigrationStatus());
 
       this.indexedDBMigrationComplete = migrationStatus === MigrationStatus.COMPLETED;
       console.log('IndexedDB migration status:', migrationStatus, 'Complete:', this.indexedDBMigrationComplete);
@@ -157,9 +154,11 @@ export class NotesService {
       return;
     }
 
-    if (localStorage.getItem("bluejournal_migration_to_new_localstorage_complete") == "true") {
-      console.log("Migration to new localstorage already completed, wont do it again.");
-      return;
+    if (isPlatformBrowser(this.platformId)) {
+      if (localStorage.getItem("bluejournal_migration_to_new_localstorage_complete") == "true") {
+        console.log("Migration to new localstorage already completed, wont do it again.");
+        return;
+      }
     }
 
     // Check if localStorage is available
@@ -299,7 +298,13 @@ export class NotesService {
   /**
    * Check if localStorage is available
    */
+  /**
+   * Check if localStorage is available
+   */
   private isLocalStorageAvailable(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
     try {
       const testKey = 'test';
       localStorage.setItem(testKey, testKey);
@@ -319,7 +324,7 @@ export class NotesService {
       const dataSizeKB = this.calculateDataStoreSize();
 
       // Send the event to Google Analytics
-      if (window.gtag) {
+      if (isPlatformBrowser(this.platformId) && window.gtag) {
         window.gtag('event', 'migration_completed', {
           'note_count': noteCount,
           'data_size_kb': dataSizeKB,
@@ -473,7 +478,7 @@ export class NotesService {
   private sendNoteCreatedEvent(note: Note): void {
     try {
       // Send the event to Google Analytics
-      if (window.gtag) {
+      if (isPlatformBrowser(this.platformId) && window.gtag) {
         window.gtag('event', 'note_created', {
           'has_image': note.images && note.images.length > 0,
           'has_categories': note.categories && note.categories.length > 0,
@@ -494,7 +499,7 @@ export class NotesService {
   public sendImageAttachedEvent(imageSize: number): void {
     try {
       // Send the event to Google Analytics
-      if (window.gtag) {
+      if (isPlatformBrowser(this.platformId) && window.gtag) {
         window.gtag('event', 'image_attached', {
           'image_size_kb': Math.round(imageSize / 1024)
         });
@@ -513,7 +518,7 @@ export class NotesService {
   public sendLetterSetOnMapEvent(letter: string, roomId: number): void {
     try {
       // Send the event to Google Analytics
-      if (window.gtag) {
+      if (isPlatformBrowser(this.platformId) && window.gtag) {
         window.gtag('event', 'letter_set_on_map', {
           'letter': letter,
           'room_id': roomId

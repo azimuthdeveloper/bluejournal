@@ -1,4 +1,5 @@
-import { Injectable, inject, Injector } from '@angular/core';
+import { Injectable, inject, Injector, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { NotesService } from './notes.service';
 import { IndexedDBService } from './indexeddb.service';
@@ -28,6 +29,7 @@ export enum MigrationStatus {
 export class MigrationService {
   private injector = inject(Injector);
   private indexedDBService = inject(IndexedDBService);
+  private platformId = inject(PLATFORM_ID);
 
   private readonly MIGRATION_STATUS_KEY = 'bluejournal_indexeddb_migration_status';
   private migrationStatusSubject = new BehaviorSubject<MigrationStatus>(MigrationStatus.NOT_STARTED);
@@ -52,11 +54,17 @@ export class MigrationService {
   private async initialize(): Promise<void> {
     try {
       // Load migration status from localStorage
-      const status = localStorage.getItem(this.MIGRATION_STATUS_KEY);
-      if (status && Object.values(MigrationStatus).includes(status as MigrationStatus)) {
-        this.migrationStatusSubject.next(status as MigrationStatus);
+      // Load migration status from localStorage
+      if (isPlatformBrowser(this.platformId)) {
+        const status = localStorage.getItem(this.MIGRATION_STATUS_KEY);
+        if (status && Object.values(MigrationStatus).includes(status as MigrationStatus)) {
+          this.migrationStatusSubject.next(status as MigrationStatus);
+        } else {
+          // Default to NOT_STARTED if no status is found
+          this.migrationStatusSubject.next(MigrationStatus.NOT_STARTED);
+        }
       } else {
-        // Default to NOT_STARTED if no status is found
+        // Default to NOT_STARTED on server
         this.migrationStatusSubject.next(MigrationStatus.NOT_STARTED);
       }
 
@@ -190,7 +198,9 @@ export class MigrationService {
    * @param status The new migration status
    */
   private updateMigrationStatus(status: MigrationStatus): void {
-    localStorage.setItem(this.MIGRATION_STATUS_KEY, status);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.MIGRATION_STATUS_KEY, status);
+    }
     this.migrationStatusSubject.next(status);
   }
 
@@ -202,7 +212,7 @@ export class MigrationService {
   private sendMigrationCompletedEvent(noteCount: number, success: boolean): void {
     try {
       // Send the event to Google Analytics
-      if (window.gtag) {
+      if (isPlatformBrowser(this.platformId) && window.gtag) {
         window.gtag('event', 'indexeddb_migration_completed', {
           'note_count': noteCount,
           'success': success,
@@ -272,6 +282,9 @@ export class MigrationService {
    * @param filename The name of the file
    */
   private downloadJson(jsonString: string, filename: string): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
     const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 

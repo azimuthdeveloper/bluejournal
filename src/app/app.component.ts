@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -44,6 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private migrationService = inject(MigrationService);
   private notesService = inject(NotesService);
   private dialog = inject(MatDialog);
+  private platformId = inject(PLATFORM_ID);
 
   title = 'Blue Journal';
   isWarningPage = true; // Default to true to hide toolbar initially
@@ -104,9 +106,11 @@ export class AppComponent implements OnInit, OnDestroy {
     this.commitHash = this.gitInfoService.getCommitHash();
 
     // Check if user has previously rejected the install prompt
-    const promptRejected = localStorage.getItem('bluejournal_prompt_rejected');
-    if (promptRejected === 'true') {
-      this.promptRejected = true;
+    if (isPlatformBrowser(this.platformId)) {
+      const promptRejected = localStorage.getItem('bluejournal_prompt_rejected');
+      if (promptRejected === 'true') {
+        this.promptRejected = true;
+      }
     }
 
     // Load navigation options from localStorage
@@ -122,15 +126,18 @@ export class AppComponent implements OnInit, OnDestroy {
   // Load navigation options from localStorage
   private loadNavigationOptions(): void {
     // Load map visibility
-    const showMap = localStorage.getItem('bluejournal_show_map');
-    if (showMap === 'true') {
-      this.showMapTab = true;
-    }
+    // Load map visibility
+    if (isPlatformBrowser(this.platformId)) {
+      const showMap = localStorage.getItem('bluejournal_show_map');
+      if (showMap === 'true') {
+        this.showMapTab = true;
+      }
 
-    // Load billiard room visibility
-    const showBilliardRoom = localStorage.getItem('bluejournal_show_billiard_room');
-    if (showBilliardRoom === 'true') {
-      this.showBilliardRoomTab = true;
+      // Load billiard room visibility
+      const showBilliardRoom = localStorage.getItem('bluejournal_show_billiard_room');
+      if (showBilliardRoom === 'true') {
+        this.showBilliardRoomTab = true;
+      }
     }
   }
 
@@ -184,7 +191,9 @@ export class AppComponent implements OnInit, OnDestroy {
       // If the user explicitly rejected the prompt, remember this decision
       if (result === 'rejected') {
         this.promptRejected = true;
-        localStorage.setItem('bluejournal_prompt_rejected', 'true');
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('bluejournal_prompt_rejected', 'true');
+        }
       }
     });
   }
@@ -234,7 +243,9 @@ export class AppComponent implements OnInit, OnDestroy {
   manuallyShowInstallPrompt(): void {
     if (this.deferredPrompt) {
       this.promptRejected = false; // Reset rejection status
-      localStorage.removeItem('bluejournal_prompt_rejected');
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.removeItem('bluejournal_prompt_rejected');
+      }
       this.showInstallPrompt();
     }
   }
