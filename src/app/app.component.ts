@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -37,11 +37,19 @@ import { MigrationPromptComponent } from './components/migration-prompt/migratio
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private themeService = inject(ThemeService);
+  private gitInfoService = inject(GitInfoService);
+  private updateService = inject(UpdateService);
+  private migrationService = inject(MigrationService);
+  private notesService = inject(NotesService);
+  private dialog = inject(MatDialog);
+
   title = 'Blue Journal';
   isWarningPage = true; // Default to true to hide toolbar initially
   showMapTab = false; // Hide map tab by default
   showBilliardRoomTab = false; // Hide billiard room tab by default
-  commitHash: string = '';
+  commitHash = '';
 
   // Property to store the deferred prompt event
   private deferredPrompt: any = null;
@@ -51,15 +59,10 @@ export class AppComponent implements OnInit, OnDestroy {
   private themeSubscription: Subscription | null = null;
   private updateSubscription: Subscription | null = null;
 
-  constructor(
-    private router: Router,
-    private themeService: ThemeService,
-    private gitInfoService: GitInfoService,
-    private updateService: UpdateService,
-    private migrationService: MigrationService,
-    private notesService: NotesService,
-    private dialog: MatDialog
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     // Subscribe to router events to detect when the route changes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)

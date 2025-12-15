@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { IndexedDBService } from './indexeddb.service';
@@ -10,9 +10,7 @@ declare global {
     gtag: (
       command: string,
       action: string,
-      params?: {
-        [key: string]: any;
-      }
+      params?: Record<string, any>
     ) => void;
   }
 }
@@ -32,6 +30,10 @@ export interface Note {
   providedIn: 'root'
 })
 export class NotesService {
+  private indexedDBService = inject(IndexedDBService);
+  private migrationService = inject(MigrationService);
+  private snackBar = inject(MatSnackBar);
+
   private notes: Note[] = [];
   private notesSubject = new BehaviorSubject<Note[]>([]);
   private readonly NOTE_IDS_KEY = 'bluejournal_note_ids';
@@ -43,11 +45,10 @@ export class NotesService {
   private isPersistentStorageGranted = false;
   private indexedDBMigrationComplete = false;
 
-  constructor(
-    private indexedDBService: IndexedDBService,
-    private migrationService: MigrationService,
-    private snackBar: MatSnackBar
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     console.log('NotesService constructor called');
 
     // Initialize the service

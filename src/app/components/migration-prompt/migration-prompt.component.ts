@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,16 +23,19 @@ interface DialogData {
   styleUrls: ['./migration-prompt.component.css']
 })
 export class MigrationPromptComponent {
+  dialogRef = inject<MatDialogRef<MigrationPromptComponent>>(MatDialogRef);
+  data = inject<DialogData>(MAT_DIALOG_DATA);
+  private migrationService = inject(MigrationService);
+
   migrationStatus: MigrationStatus = MigrationStatus.NOT_STARTED;
   migrationInProgress = false;
   migrationComplete = false;
   migrationFailed = false;
 
-  constructor(
-    public dialogRef: MatDialogRef<MigrationPromptComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    private migrationService: MigrationService
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     // Subscribe to migration status changes
     this.migrationService.getMigrationStatus().subscribe(status => {
       this.migrationStatus = status;

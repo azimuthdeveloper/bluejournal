@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,10 +21,13 @@ interface DialogData {
   styleUrls: ['./update-prompt.component.css']
 })
 export class UpdatePromptComponent {
-  constructor(
-    public dialogRef: MatDialogRef<UpdatePromptComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
-  ) {}
+  dialogRef = inject<MatDialogRef<UpdatePromptComponent>>(MatDialogRef);
+  data = inject<DialogData>(MAT_DIALOG_DATA);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   onUpdate(): void {
     this.dialogRef.close(true);

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
@@ -28,6 +28,9 @@ interface Room {
   styleUrls: ['./map.component.css']
 })
 export class MapComponent implements OnInit {
+  private dialog = inject(MatDialog);
+  private notesService = inject(NotesService);
+
   rooms: Room[] = [];
   cols = 5;
   rows = 9;
@@ -37,7 +40,10 @@ export class MapComponent implements OnInit {
   rowNumbers: number[] = [];
   colNumbers = Array.from({ length: this.cols }, (_, i) => i + 1);
 
-  constructor(private dialog: MatDialog, private notesService: NotesService) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     // Load rooms from localStorage or initialize if not exists

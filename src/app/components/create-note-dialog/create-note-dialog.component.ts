@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -32,15 +32,18 @@ interface DialogData {
   styleUrls: ['./create-note-dialog.component.css']
 })
 export class CreateNoteDialogComponent implements OnInit {
-  newNote: Note = this.createEmptyNote();
-  categoriesInput: string = '';
+  dialogRef = inject<MatDialogRef<CreateNoteDialogComponent>>(MatDialogRef);
+  data = inject<DialogData>(MAT_DIALOG_DATA);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
-  constructor(
-    public dialogRef: MatDialogRef<CreateNoteDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar
-  ) { }
+  newNote: Note = this.createEmptyNote();
+  categoriesInput = '';
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   ngOnInit(): void {
     // Initialize component

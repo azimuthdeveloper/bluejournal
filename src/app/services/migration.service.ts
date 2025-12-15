@@ -1,4 +1,4 @@
-import { Injectable, Inject, forwardRef } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {BehaviorSubject, firstValueFrom, Observable} from 'rxjs';
 import { NotesService } from './notes.service';
 import { IndexedDBService } from './indexeddb.service';
@@ -9,9 +9,7 @@ declare global {
     gtag: (
       command: string,
       action: string,
-      params?: {
-        [key: string]: any;
-      }
+      params?: Record<string, any>
     ) => void;
   }
 }
@@ -28,15 +26,18 @@ export enum MigrationStatus {
   providedIn: 'root'
 })
 export class MigrationService {
+  private notesService = inject(NotesService);
+  private indexedDBService = inject(IndexedDBService);
+
   private readonly MIGRATION_STATUS_KEY = 'bluejournal_indexeddb_migration_status';
   private migrationStatusSubject = new BehaviorSubject<MigrationStatus>(MigrationStatus.NOT_STARTED);
   private initializationComplete = false;
   private initializationPromise: Promise<void>;
 
-  constructor(
-    @Inject(forwardRef(() => NotesService)) private notesService: NotesService,
-    private indexedDBService: IndexedDBService
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     console.log('MigrationService constructor called');
 
     // Initialize the service

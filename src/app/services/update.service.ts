@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { MatDialog } from '@angular/material/dialog';
 import { filter, map } from 'rxjs/operators';
@@ -9,10 +9,13 @@ import { UpdatePromptComponent } from '../components/update-prompt/update-prompt
   providedIn: 'root'
 })
 export class UpdateService {
-  constructor(
-    private swUpdate: SwUpdate,
-    private dialog: MatDialog
-  ) {}
+  private swUpdate = inject(SwUpdate);
+  private dialog = inject(MatDialog);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   /**
    * Check if service worker updates are supported

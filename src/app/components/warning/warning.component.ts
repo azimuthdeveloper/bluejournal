@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -15,7 +15,12 @@ import { MatCardModule } from '@angular/material/card';
   styleUrls: ['./warning.component.css']
 })
 export class WarningComponent {
-  constructor(private router: Router) {}
+  private router = inject(Router);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   continue(): void {
     // Navigate to the map page when the user clicks continue

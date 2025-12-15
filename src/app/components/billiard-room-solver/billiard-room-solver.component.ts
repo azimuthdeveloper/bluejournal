@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, inject } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,16 +28,18 @@ interface GridCell {
 ]
 })
 export class BilliardRoomSolverComponent implements OnInit {
+  private snackBar = inject(MatSnackBar);
+
   // Grid data
   grid: GridCell[][] = [];
   operations: OperationType[] = ['addition', 'subtraction', 'multiplication', 'division'];
-  operationLabels: { [key in OperationType]: string } = {
+  operationLabels: Record<OperationType, string> = {
     'addition': 'Addition',
     'subtraction': 'Subtraction',
     'multiplication': 'Multiplication',
     'division': 'Division'
   };
-  operationSymbols: { [key in OperationType]: string } = {
+  operationSymbols: Record<OperationType, string> = {
     'addition': '+',
     'subtraction': '-',
     'multiplication': '×',
@@ -45,10 +47,13 @@ export class BilliardRoomSolverComponent implements OnInit {
   };
 
   // Result tracking
-  result: number = 0;
-  isResultBarVisible: boolean = true;
+  result = 0;
+  isResultBarVisible = true;
 
-  constructor(private snackBar: MatSnackBar) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.initializeGrid();

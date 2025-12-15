@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -28,10 +28,13 @@ interface RoomData {
   styleUrls: ['./room-details.component.css']
 })
 export class RoomDetailsComponent {
-  constructor(
-    public dialogRef: MatDialogRef<RoomDetailsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: RoomData
-  ) {}
+  dialogRef = inject<MatDialogRef<RoomDetailsComponent>>(MatDialogRef);
+  data = inject<RoomData>(MAT_DIALOG_DATA);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   onCancel(): void {
     this.dialogRef.close();

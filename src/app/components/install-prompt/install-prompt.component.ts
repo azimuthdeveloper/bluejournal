@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,10 +20,13 @@ interface DialogData {
   styleUrls: ['./install-prompt.component.css']
 })
 export class InstallPromptComponent implements OnInit {
-  constructor(
-    public dialogRef: MatDialogRef<InstallPromptComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
-  ) {}
+  dialogRef = inject<MatDialogRef<InstallPromptComponent>>(MatDialogRef);
+  data = inject<DialogData>(MAT_DIALOG_DATA);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     // Initialize component

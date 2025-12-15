@@ -1,4 +1,4 @@
-import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
+import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
@@ -8,7 +8,12 @@ export class ThemeService {
   private renderer: Renderer2;
   private darkMode = new BehaviorSubject<boolean>(false);
 
-  constructor(rendererFactory: RendererFactory2) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const rendererFactory = inject(RendererFactory2);
+
     this.renderer = rendererFactory.createRenderer(null, null);
 
     // Initialize theme based on localStorage or system preference

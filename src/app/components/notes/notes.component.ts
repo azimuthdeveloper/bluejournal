@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -38,12 +38,16 @@ import { NotesService, Note } from '../../services/notes.service';
   styleUrls: ['./notes.component.css']
 })
 export class NotesComponent implements OnInit, OnDestroy {
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  private notesService = inject(NotesService);
+
   notes: Note[] = [];
-  searchText: string = '';
+  searchText = '';
   selectedCategories: string[] = [];
   editingNote: Note | null = null;
   selectedImage: string | null = null;
-  categoriesInput: string = '';
+  categoriesInput = '';
 
   // Debounce for auto-save
   private noteChanges = new Subject<Note>();
@@ -59,11 +63,10 @@ export class NotesComponent implements OnInit, OnDestroy {
   // Categories array
   categories: string[] = [];
 
-  constructor(
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private notesService: NotesService
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 
   ngOnInit(): void {
     // Subscribe to notes from the service

@@ -1,4 +1,4 @@
-import { Component, Inject, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild, inject } from '@angular/core';
 
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,6 +20,9 @@ interface DialogData {
   styleUrls: ['./image-viewer.component.css']
 })
 export class ImageViewerComponent implements AfterViewInit {
+  dialogRef = inject<MatDialogRef<ImageViewerComponent>>(MatDialogRef);
+  data = inject<DialogData>(MAT_DIALOG_DATA);
+
   @ViewChild('imageContainer') imageContainer!: ElementRef;
   @ViewChild('image') image!: ElementRef<HTMLImageElement>;
 
@@ -31,10 +34,10 @@ export class ImageViewerComponent implements AfterViewInit {
   isDragging = false;
   lastTouchDistance = 0;
 
-  constructor(
-    public dialogRef: MatDialogRef<ImageViewerComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngAfterViewInit(): void {
     // Add event listeners for pinch-to-zoom and pan

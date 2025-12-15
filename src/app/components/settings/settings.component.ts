@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,30 +31,33 @@ import { MigrationService, MigrationStatus } from '../../services/migration.serv
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private appComponent = inject(AppComponent);
+  private themeService = inject(ThemeService);
+  private migrationService = inject(MigrationService);
+
   // Feature visibility settings
-  showBilliardRoom: boolean = false;
-  showMap: boolean = false;
+  showBilliardRoom = false;
+  showMap = false;
 
   // Dark mode settings
-  darkMode: boolean = false;
+  darkMode = false;
 
   // App installation
-  canInstallApp: boolean = false;
+  canInstallApp = false;
 
   // Data migration
   migrationStatus: MigrationStatus = MigrationStatus.NOT_STARTED;
-  migrationInProgress: boolean = false;
-  migrationComplete: boolean = false;
-  migrationFailed: boolean = false;
-  migrationSkipped: boolean = false;
+  migrationInProgress = false;
+  migrationComplete = false;
+  migrationFailed = false;
+  migrationSkipped = false;
   private migrationSubscription: Subscription | null = null;
 
-  constructor(
-    private router: Router,
-    private appComponent: AppComponent,
-    private themeService: ThemeService,
-    private migrationService: MigrationService
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     // Initialize dark mode state
