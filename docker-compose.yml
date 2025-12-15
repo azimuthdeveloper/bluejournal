@@ -2,7 +2,7 @@ services:
   bluejournal:
     build: .
     ports:
-      - 4000:4000
+      - 4000
     restart: always
     environment:
       - NODE_ENV=production
