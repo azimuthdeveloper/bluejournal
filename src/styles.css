@@ -201,17 +201,17 @@ body {
 
 /* Dialog styles */
 .mat-mdc-dialog-container {
-  --mdc-dialog-container-color: var(--card-background);
-  --mdc-dialog-with-divider-divider-color: var(--border-color);
-  --mdc-dialog-subhead-color: var(--text-color);
-  --mdc-dialog-supporting-text-color: var(--text-color);
+  --mat-dialog-container-color: var(--card-background);
+  --mat-dialog-with-divider-divider-color: var(--border-color);
+  --mat-dialog-subhead-color: var(--text-color);
+  --mat-dialog-supporting-text-color: var(--text-color);
 }
 
 .dark-theme .mat-mdc-dialog-container {
-  --mdc-dialog-container-color: var(--card-background);
-  --mdc-dialog-with-divider-divider-color: var(--border-color);
-  --mdc-dialog-subhead-color: var(--text-color);
-  --mdc-dialog-supporting-text-color: var(--text-color);
+  --mat-dialog-container-color: var(--card-background);
+  --mat-dialog-with-divider-divider-color: var(--border-color);
+  --mat-dialog-subhead-color: var(--text-color);
+  --mat-dialog-supporting-text-color: var(--text-color);
 }
 
 .dark-theme .mat-mdc-dialog-title {
